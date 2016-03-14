@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../cg-dialog.js"></script>
+</head>
+<body>
+
+<form id="dialog_form">
+    <p>
+        <label><input type="checkbox">Checkbox</label>
+    </p>
+
+    <p>
+        <label><input type="checkbox">Checkbox</label>
+    </p>
+
+    <p>
+        <label><input type="text">text</label>
+    </p>
+</form>
+
+<button onclick="dialog.open()">Info</button>
+<button onclick="dialogForm.open()">Form</button>
+
+<script>
+    var dialog = new CgDialog({
+        content: 'This is dummy copy. It is not meant to be read. It has been placed here solely to demonstrate the look and feel of finished, typeset text. Only for show. He who searches for meaning here will be sorely disappointed.',
+        title: 'Dialog example',
+        type: CgDialog.TYPES.OK
+    });
+    var dialogForm = new CgDialog({
+        content: document.getElementById('dialog_form'),
+        title: 'Dialog example',
+        type: CgDialog.TYPES.OK
+    });
+
+</script>
+</body>
+</html>
