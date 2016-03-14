@@ -4,7 +4,7 @@
 
 ## Installation
 Component can be installed with npm:
-```bash
+```
 npm install --save git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git
 ```
 
