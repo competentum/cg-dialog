@@ -28,7 +28,7 @@ CgDialog.prototype = {
         this.content = settings.content || '';
         this.onclose = settings.onclose || function () {
             };
-        this.onopen = settings.onclose || function () {
+        this.onopen = settings.onopen || function () {
             };
         this.type = settings.type || this.constructor.TYPES.OK;
         this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
