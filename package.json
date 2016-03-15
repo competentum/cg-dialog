@@ -1,6 +1,6 @@
 {
   "name": "cg-dialog",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Dialog component",
   "main": "cg-dialog.js",
   "scripts": {
