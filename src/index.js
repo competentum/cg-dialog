@@ -1,29 +1,34 @@
 'use strict';
 
-import './common.css';
+import './common.less';
 
 var DIALOG_CLASS = 'cg-dialog';
 var CONTAINER_CLASS = 'cg-dialog-wrap';
 var TITLE_CLASS = 'cg-dialog-title';
 var CONTENT_CLASS = 'cg-dialog-content';
 var BUTTONS_CLASS = 'cg-dialog-buttons';
+var OK_BUTTON_CLASS = 'cg-dialog-button-ok';
+var CANCEL_BUTTON_CLASS = 'cg-dialog-button-cancel';
 
-function CgDialog(settings) {
-    this._applySettings(settings);
-    this._render();
-}
+class CgDialog {
 
-CgDialog.TYPES = {
-    OK: 'ok',
-    OK_CANCEL: 'ok_cancel',
-    YES_NO: 'yes_no'
-};
+    static get TYPES() {
+        if (!this._TYPES) {
+            this._TYPES = {
+                OK: 'ok',
+                OK_CANCEL: 'ok_cancel',
+                YES_NO: 'yes_no'
+            };
+        }
+        return this._TYPES;
+    }
 
-CgDialog.prototype = {
+    constructor(settings) {
+        this._applySettings(settings);
+        this._render();
+    }
 
-    constructor: CgDialog,
-
-    _applySettings: function (settings) {
+    _applySettings(settings) {
         this.title = settings.title || '';
         this.content = settings.content || '';
         this.onclose = settings.onclose || function () {
@@ -32,35 +37,48 @@ CgDialog.prototype = {
             };
         this.type = settings.type || this.constructor.TYPES.OK;
         this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
-    },
+    }
 
-    _render: function (settings) {
-        var self = this;
-        this.wrapElement = document.createElement('div');
-        this.wrapElement.className = CONTAINER_CLASS;
+    _render() {
+        var elementHTML = `
+            <div class="${CONTAINER_CLASS}">
+                <div class="${DIALOG_CLASS}">
+                    <div class="${TITLE_CLASS}">${this.title}</div>
+                    <div class="${CONTENT_CLASS}"></div>
+                    <div class="${BUTTONS_CLASS}">
+                        <button class="${OK_BUTTON_CLASS}"></button>
+                        <button class="${CANCEL_BUTTON_CLASS}"></button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        var parser = new DOMParser();
+        this.wrapElement = parser.parseFromString(elementHTML, 'text/html').body.firstChild;
         document.body.appendChild(this.wrapElement);
 
-        this.domElement = document.createElement('div');
-        this.domElement.className = DIALOG_CLASS;
-        this.wrapElement.appendChild(this.domElement);
+        this.domElement = this.wrapElement.querySelector(`.${DIALOG_CLASS}`);
+        this.titleElement = this.domElement.querySelector(`.${TITLE_CLASS}`);
+        this.contentElement = this.domElement.querySelector(`.${CONTENT_CLASS}`);
+        this.okButton = this.domElement.querySelector(`.${OK_BUTTON_CLASS}`);
+        this.cancelButton = this.domElement.querySelector(`.${CANCEL_BUTTON_CLASS}`);
+
+        this.okButton.addEventListener('click', () => {
+            this.close(true);
+        });
+
+        this.cancelButton.addEventListener('click', () => {
+            this.close(false);
+        });
 
         if (!this.isModal) {
-            this.wrapElement.addEventListener('click', function () {
-                self.close(false);
+            this.wrapElement.addEventListener('click', () => {
+                this.close(false);
             });
             this.domElement.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
         }
-
-        this.titleElement = document.createElement('div');
-        this.titleElement.className = TITLE_CLASS;
-        this.titleElement.innerHTML = this.title;
-        this.domElement.appendChild(this.titleElement);
-
-        this.contentElement = document.createElement('div');
-        this.contentElement.className = CONTENT_CLASS;
-        this.domElement.appendChild(this.contentElement);
 
         if (typeof this.content === 'string') {
             this.contentElement.innerHTML = this.content;
@@ -68,22 +86,6 @@ CgDialog.prototype = {
         else if (this.content instanceof Element) {
             this.contentElement.appendChild(this.content);
         }
-
-        this.buttonsElement = document.createElement('div');
-        this.buttonsElement.className = BUTTONS_CLASS;
-        this.domElement.appendChild(this.buttonsElement);
-
-        this.okButton = document.createElement('button');
-        this.buttonsElement.appendChild(this.okButton);
-        this.okButton.addEventListener('click', function () {
-            self.close(true);
-        });
-
-        this.cancelButton = document.createElement('button');
-        this.buttonsElement.appendChild(this.cancelButton);
-        this.cancelButton.addEventListener('click', function () {
-            self.close(false);
-        });
 
         switch (this.type) {
             case this.constructor.TYPES.OK:
@@ -103,22 +105,22 @@ CgDialog.prototype = {
         }
 
         this.close();
-    },
+    }
 
-    close: function (result) {
+    close(result) {
         if (typeof result === 'undefined') {
             result = false;
         }
         this.wrapElement.style.display = 'none';
         this.onclose(result)
-    },
+    }
 
-    open: function () {
+    open() {
         this.wrapElement.style.display = 'block';
         this.onopen();
     }
 
-};
+}
 
 if (typeof jQuery !== 'undefined') {
     //todo: add plugin
