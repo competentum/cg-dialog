@@ -3,7 +3,7 @@
   Exported as a [UMD](https://github.com/umdjs/umd) module.
 
 ## Installation
-Component can be installed with npm:
+Component can be installed with npm (works in Competentum VPN only):
 ```
 npm install --save git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git
 ```
