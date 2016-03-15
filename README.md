@@ -1,5 +1,5 @@
 #cg-dialog
- > Accessible Dialog Component (JavaScript) by Competentum Group.
+ > JavaScript Accessible Dialog Component by [Competentum Group](http://competentum.com/).
   Exported as a [UMD](https://github.com/umdjs/umd) module.
 
 ## Installation
@@ -30,3 +30,6 @@ dialog.close();
 
 ## Settings
 TBD
+
+## Contacts
+Alexey Pilyugin ([pilyugin@competentum.ru](mailto:pilyugin@competentum.ru))
