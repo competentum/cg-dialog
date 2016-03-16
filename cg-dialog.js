@@ -213,7 +213,7 @@
 				}, {
 					key: 'open',
 					value: function open() {
-						this.wrapElement.style.display = 'block';
+						this.wrapElement.style.display = '';
 						this.onopen();
 					}
 				}]);
@@ -320,7 +320,7 @@
 								item[2] = mediaQuery;
 							} else if (mediaQuery) {
 								item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-							}
+					}
 							list.push(item);
 						}
 					}
@@ -345,7 +345,7 @@
 						if (typeof memo === "undefined") memo = fn.apply(this, arguments);
 						return memo;
 					};
-				},
+		},
 				isOldIE = memoize(function () {
 					return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
 				}),
@@ -379,19 +379,19 @@
 						var domStyle = stylesInDom[item.id];
 						domStyle.refs--;
 						mayRemove.push(domStyle);
-					}
+			}
 					if (newList) {
 						var newStyles = listToStyles(newList);
 						addStylesToDom(newStyles, options);
-					}
+			}
 					for (var i = 0; i < mayRemove.length; i++) {
 						var domStyle = mayRemove[i];
 						if (domStyle.refs === 0) {
 							for (var j = 0; j < domStyle.parts.length; j++)
 								domStyle.parts[j]();
 							delete stylesInDom[domStyle.id];
-						}
-					}
+				}
+			}
 				};
 			}
 
@@ -403,17 +403,17 @@
 						domStyle.refs++;
 						for (var j = 0; j < domStyle.parts.length; j++) {
 							domStyle.parts[j](item.parts[j]);
-						}
+				}
 						for (; j < item.parts.length; j++) {
 							domStyle.parts.push(addStyle(item.parts[j], options));
-						}
+				}
 					} else {
 						var parts = [];
 						for (var j = 0; j < item.parts.length; j++) {
 							parts.push(addStyle(item.parts[j], options));
 						}
 						stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-					}
+			}
 				}
 			}
 
@@ -445,7 +445,7 @@
 						head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
 					} else {
 						head.appendChild(styleElement);
-					}
+			}
 					styleElementsInsertedAtTop.push(styleElement);
 				} else if (options.insertAt === "bottom") {
 					head.appendChild(styleElement);
@@ -514,7 +514,7 @@
 						update(obj = newObj);
 					} else {
 						remove();
-					}
+			}
 				};
 			}
 
@@ -540,7 +540,7 @@
 						styleElement.insertBefore(cssNode, childNodes[index]);
 					} else {
 						styleElement.appendChild(cssNode);
-					}
+			}
 				}
 			}
 
@@ -558,7 +558,7 @@
 				} else {
 					while (styleElement.firstChild) {
 						styleElement.removeChild(styleElement.firstChild);
-					}
+			}
 					styleElement.appendChild(document.createTextNode(css));
 				}
 			}

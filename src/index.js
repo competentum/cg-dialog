@@ -116,7 +116,7 @@ class CgDialog {
     }
 
     open() {
-        this.wrapElement.style.display = 'block';
+        this.wrapElement.style.display = '';
         this.onopen();
     }
 
