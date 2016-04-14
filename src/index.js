@@ -2,6 +2,9 @@
 
 import './common.less';
 
+import EventEmitter from 'events';
+import utils from './utils';
+
 var DIALOG_CLASS = 'cg-dialog';
 var CONTAINER_CLASS = 'cg-dialog-wrap';
 var TITLE_CLASS = 'cg-dialog-title';
@@ -10,7 +13,17 @@ var BUTTONS_CLASS = 'cg-dialog-buttons';
 var OK_BUTTON_CLASS = 'cg-dialog-button-ok';
 var CANCEL_BUTTON_CLASS = 'cg-dialog-button-cancel';
 
-class CgDialog {
+class CgDialog extends EventEmitter {
+
+    static get EVENTS() {
+        if (!this._EVENTS) {
+            this._EVENTS = {
+                OPEN: 'open',
+                CLOSE: 'close'
+            };
+        }
+        return this._EVENTS;
+    }
 
     static get TYPES() {
         if (!this._TYPES) {
@@ -24,6 +37,7 @@ class CgDialog {
     }
 
     constructor(settings) {
+        super();
         this._applySettings(settings);
         this._render();
     }
@@ -53,8 +67,7 @@ class CgDialog {
             </div>
         `;
 
-        var parser = new DOMParser();
-        this.wrapElement = parser.parseFromString(elementHTML, 'text/html').body.firstChild;
+        this.wrapElement = utils.createHTML(elementHTML);
         document.body.appendChild(this.wrapElement);
 
         this.domElement = this.wrapElement.querySelector(`.${DIALOG_CLASS}`);
@@ -104,20 +117,35 @@ class CgDialog {
                 throw new Error(this.constructor.name + '._render: unknown type:"' + this.type + '"');
         }
 
-        this.close();
+        this.close(false, false);
     }
 
-    close(result) {
+    /**
+     * Close dialog.
+     * @param result
+     * @param [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
+     */
+    close(result, emitEvent = true) {
         if (typeof result === 'undefined') {
             result = false;
         }
         this.wrapElement.style.display = 'none';
-        this.onclose(result)
+        if (emitEvent) {
+            this.emit(this.constructor.EVENTS.CLOSE, result);
+            this.onclose(result)
+        }
     }
 
-    open() {
+    /**
+     * Open dialog.
+     * @param emitEvent - if true, dialog instance emits OPEN event
+     */
+    open(emitEvent = true) {
         this.wrapElement.style.display = '';
-        this.onopen();
+        if (emitEvent) {
+            this.onopen();
+            this.emit(this.constructor.EVENTS.OPEN);
+        }
     }
 
 }
