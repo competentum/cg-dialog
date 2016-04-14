@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var path = require('path');
 var cgBanner = require('cg-components-banner');
+var upperCamelCase = require('uppercamelcase');
 
 var buildPath = path.resolve(__dirname, '.');
 
@@ -8,12 +9,15 @@ var pkg = require('./package.json');
 var banner = pkg.name + ' v' + pkg.version + ' - ' + pkg.description + '\n'
     + cgBanner;
 
+var entry = {};
+entry[pkg.name] = [path.resolve(__dirname, './src/index.js')];
+
 module.exports = {
-    entry: path.resolve(__dirname, './src/index.js'),
+    entry: entry,
     output: {
         path: buildPath,
-        filename: 'cg-dialog.js',
-        library: 'CgDialog',
+        filename: pkg.name + '.js',
+        library: upperCamelCase(pkg.name),
         libraryTarget: 'umd'
     },
     plugins: [
