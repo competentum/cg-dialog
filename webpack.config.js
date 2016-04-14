@@ -1,7 +1,12 @@
 var webpack = require('webpack');
 var path = require('path');
+var cgBanner = require('cg-components-banner');
 
 var buildPath = path.resolve(__dirname, '.');
+
+var pkg = require('./package.json');
+var banner = pkg.name + ' v' + pkg.version + ' - ' + pkg.description + '\n'
+    + cgBanner;
 
 module.exports = {
     entry: path.resolve(__dirname, './src/index.js'),
@@ -12,7 +17,8 @@ module.exports = {
         libraryTarget: 'umd'
     },
     plugins: [
-        new webpack.NoErrorsPlugin()
+        new webpack.NoErrorsPlugin(),
+        new webpack.BannerPlugin(banner)
     ],
     module: {
         loaders: [
