@@ -6,12 +6,12 @@ import EventEmitter from 'events';
 import utils from './utils';
 
 var DIALOG_CLASS = 'cg-dialog';
-var CONTAINER_CLASS = 'cg-dialog-wrap';
-var TITLE_CLASS = 'cg-dialog-title';
-var CONTENT_CLASS = 'cg-dialog-content';
-var BUTTONS_CLASS = 'cg-dialog-buttons';
-var OK_BUTTON_CLASS = 'cg-dialog-button-ok';
-var CANCEL_BUTTON_CLASS = 'cg-dialog-button-cancel';
+var CONTAINER_CLASS = `${DIALOG_CLASS}-wrap`;
+var TITLE_CLASS = `${DIALOG_CLASS}-title`;
+var CONTENT_CLASS = `${DIALOG_CLASS}-content`;
+var BUTTONS_CLASS = `${DIALOG_CLASS}-buttons`;
+var OK_BUTTON_CLASS = `${DIALOG_CLASS}-button-ok`;
+var CANCEL_BUTTON_CLASS = `${DIALOG_CLASS}-button-cancel`;
 
 class CgDialog extends EventEmitter {
 
@@ -51,12 +51,18 @@ class CgDialog extends EventEmitter {
             };
         this.type = settings.type || this.constructor.TYPES.OK;
         this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
+
+        this.classes = settings.classes || [];
+        if (!Array.isArray(this.classes)) {
+            this.classes = [this.classes];
+        }
     }
 
     _render() {
+        var dialogClasses = `${DIALOG_CLASS} ${this.classes.join(' ')}`;
         var elementHTML = `
             <div class="${CONTAINER_CLASS}">
-                <div class="${DIALOG_CLASS}">
+                <div class="${dialogClasses.trim()}">
                     <div class="${TITLE_CLASS}">${this.title}</div>
                     <div class="${CONTENT_CLASS}"></div>
                     <div class="${BUTTONS_CLASS}">

@@ -147,12 +147,12 @@
             }
 
             var DIALOG_CLASS = 'cg-dialog';
-            var CONTAINER_CLASS = 'cg-dialog-wrap';
-            var TITLE_CLASS = 'cg-dialog-title';
-            var CONTENT_CLASS = 'cg-dialog-content';
-            var BUTTONS_CLASS = 'cg-dialog-buttons';
-            var OK_BUTTON_CLASS = 'cg-dialog-button-ok';
-            var CANCEL_BUTTON_CLASS = 'cg-dialog-button-cancel';
+            var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
+            var TITLE_CLASS = DIALOG_CLASS + '-title';
+            var CONTENT_CLASS = DIALOG_CLASS + '-content';
+            var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
+            var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
+            var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
 
             var CgDialog = function (_EventEmitter) {
                 _inherits(CgDialog, _EventEmitter);
@@ -203,13 +203,19 @@
                             };
                         this.type = settings.type || this.constructor.TYPES.OK;
                         this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
+
+                        this.classes = settings.classes || [];
+                        if (!Array.isArray(this.classes)) {
+                            this.classes = [this.classes];
+                        }
                     }
                 }, {
                     key: '_render',
                     value: function _render() {
                         var _this2 = this;
 
-                        var elementHTML = '\n            <div class="' + CONTAINER_CLASS + '">\n                <div class="' + DIALOG_CLASS + '">\n                    <div class="' + TITLE_CLASS + '">' + this.title + '</div>\n                    <div class="' + CONTENT_CLASS + '"></div>\n                    <div class="' + BUTTONS_CLASS + '">\n                        <button class="' + OK_BUTTON_CLASS + '"></button>\n                        <button class="' + CANCEL_BUTTON_CLASS + '"></button>\n                    </div>\n                </div>\n            </div>\n        ';
+                        var dialogClasses = DIALOG_CLASS + ' ' + this.classes.join(' ');
+                        var elementHTML = '\n            <div class="' + CONTAINER_CLASS + '">\n                <div class="' + dialogClasses.trim() + '">\n                    <div class="' + TITLE_CLASS + '">' + this.title + '</div>\n                    <div class="' + CONTENT_CLASS + '"></div>\n                    <div class="' + BUTTONS_CLASS + '">\n                        <button class="' + OK_BUTTON_CLASS + '"></button>\n                        <button class="' + CANCEL_BUTTON_CLASS + '"></button>\n                    </div>\n                </div>\n            </div>\n        ';
 
                         this.wrapElement = _utils2.default.createHTML(elementHTML);
                         document.body.appendChild(this.wrapElement);
