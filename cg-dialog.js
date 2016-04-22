@@ -106,11 +106,17 @@
 
 			__webpack_require__(2);
 
-			var _events = __webpack_require__(6);
+			__webpack_require__(7);
+
+			var _events = __webpack_require__(8);
 
 			var _events2 = _interopRequireDefault(_events);
 
-			var _utils = __webpack_require__(7);
+			var _merge = __webpack_require__(9);
+
+			var _merge2 = _interopRequireDefault(_merge);
+
+			var _utils = __webpack_require__(11);
 
 			var _utils2 = _interopRequireDefault(_utils);
 
@@ -151,13 +157,37 @@
 			var TITLE_CLASS = DIALOG_CLASS + '-title';
 			var CONTENT_CLASS = DIALOG_CLASS + '-content';
 			var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
+			var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
 			var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
 			var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
+			var FORCE_FOCUSED_CLASS = 'is-force-focused';
+
+			var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
 			var CgDialog = function (_EventEmitter) {
 				_inherits(CgDialog, _EventEmitter);
 
 				_createClass(CgDialog, null, [{
+					key: 'DEFAULT_SETTINGS',
+					get: function get() {
+						var thisClass = this;
+						return {
+							title: '',
+							content: '',
+							onclose: function onclose() {
+							},
+							onopen: function onopen() {
+							},
+							type: thisClass.TYPES.OK,
+							isModal: false,
+							classes: [],
+							buttonTexts: {
+								ok: 'Ok',
+								cancel: 'Cancel'
+							}
+						};
+					}
+				}, {
 					key: 'EVENTS',
 					get: function get() {
 						if (!this._EVENTS) {
@@ -174,8 +204,7 @@
 						if (!this._TYPES) {
 							this._TYPES = {
 								OK: 'ok',
-								OK_CANCEL: 'ok_cancel',
-								YES_NO: 'yes_no'
+								OK_CANCEL: 'ok_cancel'
 							};
 						}
 						return this._TYPES;
@@ -189,42 +218,19 @@
 
 					_this._applySettings(settings);
 					_this._render();
+					_this._addListeners();
+					_this.close(false, false);
 					return _this;
 				}
 
 				_createClass(CgDialog, [{
-					key: '_applySettings',
-					value: function _applySettings(settings) {
-						this.title = settings.title || '';
-						this.content = settings.content || '';
-						this.onclose = settings.onclose || function () {
-							};
-						this.onopen = settings.onopen || function () {
-							};
-						this.type = settings.type || this.constructor.TYPES.OK;
-						this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
-
-						this.classes = settings.classes || [];
-						if (!Array.isArray(this.classes)) {
-							this.classes = [this.classes];
-						}
-					}
-				}, {
-					key: '_render',
-					value: function _render() {
+					key: '_addListeners',
+					value: function _addListeners() {
 						var _this2 = this;
 
-						var dialogClasses = DIALOG_CLASS + ' ' + this.classes.join(' ');
-						var elementHTML = '\n            <div class="' + CONTAINER_CLASS + '">\n                <div class="' + dialogClasses.trim() + '">\n                    <div class="' + TITLE_CLASS + '">' + this.title + '</div>\n                    <div class="' + CONTENT_CLASS + '"></div>\n                    <div class="' + BUTTONS_CLASS + '">\n                        <button class="' + OK_BUTTON_CLASS + '"></button>\n                        <button class="' + CANCEL_BUTTON_CLASS + '"></button>\n                    </div>\n                </div>\n            </div>\n        ';
-
-						this.wrapElement = _utils2.default.createHTML(elementHTML);
-						document.body.appendChild(this.wrapElement);
-
-						this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
-						this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
-						this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
-						this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
-						this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
+						this.domElement.addEventListener('blur', function () {
+							_utils2.default.removeClass(_this2.domElement, FORCE_FOCUSED_CLASS);
+						});
 
 						this.okButton.addEventListener('click', function () {
 							_this2.close(true);
@@ -234,39 +240,55 @@
 							_this2.close(false);
 						});
 
-						if (!this.isModal) {
-							this.wrapElement.addEventListener('click', function () {
+						if (!this.settings.isModal) {
+							this.closeButton.addEventListener('click', function () {
+								_this2.close(true);
+							});
+							this.wrapElement.addEventListener('click', function (e) {
 								_this2.close(false);
 							});
 							this.domElement.addEventListener('click', function (e) {
 								e.stopPropagation();
 							});
 						}
+					}
+				}, {
+					key: '_applySettings',
+					value: function _applySettings(settings) {
+						this.settings = (0, _merge2.default)({}, this.constructor.DEFAULT_SETTINGS, settings);
+						this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
+						if (!Array.isArray(this.settings.classes)) {
+							this.settings.classes = [this.settings.classes];
+						}
+					}
+				}, {
+					key: '_render',
+					value: function _render() {
+						var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
+						var elementHTML = '\n            <div class="' + CONTAINER_CLASS + '">\n                <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="0">\n                    <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>\n                    <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>\n                    <div class="' + CONTENT_CLASS + '"></div>\n                    <div class="' + BUTTONS_CLASS + '">\n                        <button class="' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>\n                        <button class="' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>\n                    </div>\n                </div>\n            </div>\n        ';
 
-						if (typeof this.content === 'string') {
-							this.contentElement.innerHTML = this.content;
-						} else if (this.content instanceof Element) {
-							this.contentElement.appendChild(this.content);
+						this.wrapElement = _utils2.default.createHTML(elementHTML);
+						document.body.appendChild(this.wrapElement);
+
+						this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
+						this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
+						this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
+						this.closeButton = this.domElement.querySelector('.' + CLOSE_BUTTON_CLASS);
+						this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
+						this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
+
+						if (this.settings.isModal) {
+							this.closeButton.remove();
+						}
+						if (this.settings.type == this.constructor.TYPES.OK) {
+							this.cancelButton.remove();
 						}
 
-						switch (this.type) {
-							case this.constructor.TYPES.OK:
-								this.okButton.innerHTML = 'Ok';
-								this.cancelButton.style.display = 'none';
-								break;
-							case this.constructor.TYPES.OK_CANCEL:
-								this.okButton.innerHTML = 'Ok';
-								this.cancelButton.innerHTML = 'Cancel';
-								break;
-							case this.constructor.TYPES.YES_NO:
-								this.okButton.innerHTML = 'Yes';
-								this.cancelButton.innerHTML = 'No';
-								break;
-							default:
-								throw new Error(this.constructor.name + '._render: unknown type:"' + this.type + '"');
+						if (typeof this.settings.content === 'string') {
+							this.contentElement.innerHTML = this.settings.content;
+						} else if (this.settings.content instanceof Element) {
+							this.contentElement.appendChild(this.settings.content);
 						}
-
-						this.close(false, false);
 					}
 
 					/**
@@ -286,7 +308,7 @@
 						this.wrapElement.style.display = 'none';
 						if (emitEvent) {
 							this.emit(this.constructor.EVENTS.CLOSE, result);
-							this.onclose(result);
+							this.settings.onclose(result);
 						}
 					}
 
@@ -301,8 +323,10 @@
 						var emitEvent = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
 						this.wrapElement.style.display = '';
+						this.domElement.focus();
+						_utils2.default.addClass(this.domElement, FORCE_FOCUSED_CLASS);
 						if (emitEvent) {
-							this.onopen();
+							this.settings.onopen();
 							this.emit(this.constructor.EVENTS.OPEN);
 						}
 					}
@@ -329,7 +353,7 @@
 			var content = __webpack_require__(3);
 			if (typeof content === 'string') content = [[module.id, content, '']];
 			// add the styles to the DOM
-			var update = __webpack_require__(5)(content, {});
+			var update = __webpack_require__(6)(content, {});
 			if (content.locals) module.exports = content.locals;
 			// Hot Module Replacement
 			if (false) {
@@ -357,7 +381,7 @@
 
 
 			// module
-			exports.push([module.id, ".cg-dialog-wrap {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-wrap:before {\n  content: '';\n  display: inline-block;\n  height: 100%;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 400px;\n  margin: 40px auto;\n  position: relative;\n  display: inline-block;\n  background-color: white;\n  vertical-align: middle;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
+			exports.push([module.id, ".cg-dialog-wrap {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-wrap:before {\n  content: '';\n  display: inline-block;\n  height: 100%;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 400px;\n  margin: 40px auto;\n  position: relative;\n  display: inline-block;\n  background-color: white;\n  z-index: 1001;\n  vertical-align: middle;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + __webpack_require__(5) + ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
 
 			// exports
 
@@ -422,6 +446,13 @@
 			/***/
 		},
 		/* 5 */
+		/***/ function (module, exports) {
+
+			module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTE5LDYuNDFMMTcuNTksNUwxMiwxMC41OUw2LjQxLDVMNSw2LjQxTDEwLjU5LDEyTDUsMTcuNTlMNi40MSwxOUwxMiwxMy40MUwxNy41OSwxOUwxOSwxNy41OUwxMy40MSwxMkwxOSw2LjQxWiIgLz48L3N2Zz4="
+
+			/***/
+		},
+		/* 6 */
 		/***/ function (module, exports, __webpack_require__) {
 
 			/*
@@ -676,7 +707,73 @@
 
 			/***/
 		},
-		/* 6 */
+		/* 7 */
+		/***/ function (module, exports) {
+
+			'use strict';
+
+			(function () {
+				var MOUSE_FOCUSED_CLASS = 'is-mouse-focused';
+
+				if (window.mouseFocusingInitialized)
+					return;
+
+				window.mouseFocusingInitialized = true;
+
+				if (document.readyState == "interactive") {
+					addMouseListener();
+				}
+				else {
+					document.addEventListener('DOMContentLoaded', addMouseListener);
+				}
+
+				function addMouseListener() {
+					document.body.addEventListener('mousedown', function () {
+						// wait for `document.activeElement` to change
+						setTimeout(function () {
+							// find focused element
+							var activeElement = document.activeElement;
+							// if found and it's not body
+							if (activeElement && activeElement.tagName.toLowerCase() != 'body') {
+								// add special class, remove it after `blur`
+								addClass(activeElement, MOUSE_FOCUSED_CLASS);
+								activeElement.addEventListener('blur', onBlur);
+							}
+						}, 0);
+					});
+				}
+
+				function onBlur() {
+					this.removeEventListener('blur', onBlur);
+					removeClass(this, MOUSE_FOCUSED_CLASS);
+				}
+
+				/**
+				 *
+				 * @param {Element} element
+				 * @param {string} className
+				 */
+				function addClass(element, className) {
+					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
+					if (re.test(element.className)) return;
+					element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
+				}
+
+				/**
+				 *
+				 * @param {Element} element
+				 * @param {string} className
+				 */
+				function removeClass(element, className) {
+					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
+					element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
+				}
+
+			})();
+
+			/***/
+		},
+		/* 8 */
 		/***/ function (module, exports) {
 
 			// Copyright Joyent, Inc. and other Node contributors.
@@ -982,7 +1079,210 @@
 
 			/***/
 		},
-		/* 7 */
+		/* 9 */
+		/***/ function (module, exports, __webpack_require__) {
+
+			/* WEBPACK VAR INJECTION */
+			(function (module) {/*!
+			 * @name JavaScript/NodeJS Merge v1.2.0
+			 * @author yeikos
+			 * @repository https://github.com/yeikos/js.merge
+
+			 * Copyright 2014 yeikos - MIT license
+			 * https://raw.github.com/yeikos/js.merge/master/LICENSE
+			 */
+
+				;
+				(function (isNode) {
+
+					/**
+					 * Merge one or more objects
+					 * @param bool? clone
+					 * @param mixed,... arguments
+					 * @return object
+					 */
+
+					var Public = function (clone) {
+
+						return merge(clone === true, false, arguments);
+
+					}, publicName = 'merge';
+
+					/**
+					 * Merge two or more objects recursively
+					 * @param bool? clone
+					 * @param mixed,... arguments
+					 * @return object
+					 */
+
+					Public.recursive = function (clone) {
+
+						return merge(clone === true, true, arguments);
+
+					};
+
+					/**
+					 * Clone the input removing any reference
+					 * @param mixed input
+					 * @return mixed
+					 */
+
+					Public.clone = function (input) {
+
+						var output = input,
+							type = typeOf(input),
+							index, size;
+
+						if (type === 'array') {
+
+							output = [];
+							size = input.length;
+
+							for (index = 0; index < size; ++index)
+
+								output[index] = Public.clone(input[index]);
+
+						} else if (type === 'object') {
+
+							output = {};
+
+							for (index in input)
+
+								output[index] = Public.clone(input[index]);
+
+			}
+
+						return output;
+
+					};
+
+					/**
+					 * Merge two objects recursively
+					 * @param mixed input
+					 * @param mixed extend
+					 * @return mixed
+					 */
+
+					function merge_recursive(base, extend) {
+
+						if (typeOf(base) !== 'object')
+
+							return extend;
+
+						for (var key in extend) {
+
+							if (typeOf(base[key]) === 'object' && typeOf(extend[key]) === 'object') {
+
+								base[key] = merge_recursive(base[key], extend[key]);
+
+							} else {
+
+								base[key] = extend[key];
+
+							}
+
+			}
+
+						return base;
+
+					}
+
+					/**
+					 * Merge two or more objects
+					 * @param bool clone
+					 * @param bool recursive
+					 * @param array argv
+					 * @return object
+					 */
+
+					function merge(clone, recursive, argv) {
+
+						var result = argv[0],
+							size = argv.length;
+
+						if (clone || typeOf(result) !== 'object')
+
+							result = {};
+
+						for (var index = 0; index < size; ++index) {
+
+							var item = argv[index],
+
+								type = typeOf(item);
+
+							if (type !== 'object') continue;
+
+							for (var key in item) {
+
+								var sitem = clone ? Public.clone(item[key]) : item[key];
+
+								if (recursive) {
+
+									result[key] = merge_recursive(result[key], sitem);
+
+								} else {
+
+									result[key] = sitem;
+
+								}
+
+				}
+
+						}
+
+						return result;
+
+		}
+
+					/**
+					 * Get type of variable
+					 * @param mixed input
+					 * @return string
+					 *
+					 * @see http://jsperf.com/typeofvar
+					 */
+
+					function typeOf(input) {
+
+						return ({}).toString.call(input).slice(8, -1).toLowerCase();
+
+					}
+
+					if (isNode) {
+
+						module.exports = Public;
+
+					} else {
+
+						window[publicName] = Public;
+
+					}
+
+				})(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
+				/* WEBPACK VAR INJECTION */
+			}.call(exports, __webpack_require__(10)(module)))
+
+			/***/
+		},
+		/* 10 */
+		/***/ function (module, exports) {
+
+			module.exports = function (module) {
+				if (!module.webpackPolyfill) {
+					module.deprecate = function () {
+					};
+					module.paths = [];
+					// module.parent = undefined by default
+					module.children = [];
+					module.webpackPolyfill = 1;
+				}
+				return module;
+			}
+
+
+			/***/
+		},
+		/* 11 */
 		/***/ function (module, exports) {
 
 			'use strict';
@@ -992,6 +1292,26 @@
 			});
 			exports.default = {
 
+				/**
+				 *
+				 * @param {Element} element
+				 * @param {string} className
+				 */
+				addClass: function addClass(element, className) {
+					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
+					if (re.test(element.className)) return;
+					element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
+				},
+
+				/**
+				 *
+				 * @param {Element} element
+				 * @param {string} className
+				 */
+				removeClass: function removeClass(element, className) {
+					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
+					element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
+				},
 				/**
 				 *
 				 * @param {string} html

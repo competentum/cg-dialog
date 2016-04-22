@@ -1,8 +1,29 @@
+@dialog-outline-offset: 2px;
+@close-button-size: 30px;
+@close-button-outline-padding: 3px;
+
 .user-select(@value) {
   -webkit-user-select: @value;
   -moz-user-select: @value;
   -ms-user-select: @value;
   user-select: @value;
+}
+
+.dotted-focus(@outline-padding: 3px, @color: black) {
+  &:focus {
+    outline: none;
+
+    &:not(.is-mouse-focused):before {
+      content: "";
+      position: absolute;
+      z-index: 1000;
+      top: @outline-padding;
+      bottom: @outline-padding;
+      left: @outline-padding;
+      right: @outline-padding;
+      border: 1px dotted @color;
+    }
+  }
 }
 
 .cg-dialog-wrap {
@@ -35,14 +56,49 @@
   position: relative;
   display: inline-block;
   background-color: white;
+  z-index: 1001;
   vertical-align: middle;
   .user-select(text);
+
+  &:focus {
+    outline: 1px dotted white;
+    outline-offset: @dialog-outline-offset;
+  }
+  &.is-mouse-focused:focus,
+  &.is-force-focused:focus {
+    outline: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 .cg-dialog-title {
   font-weight: 400;
   font-size: 2em;
   margin-bottom: 10px;
+}
+
+.cg-dialog-button-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: @close-button-size;
+  height: @close-button-size;
+  border: none;
+  opacity: .5;
+  background: url("icons/close.svg") center no-repeat;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  .dotted-focus(@close-button-outline-padding)
 }
 
 .cg-dialog-buttons {

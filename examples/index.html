@@ -33,11 +33,11 @@
             console.log('open');
         },
         onclose: function (result) {
-            console.log('Callback close with result', result);
+            console.log('Close Callback with result', result);
         }
     });
     dialog.on(CgDialog.EVENTS.CLOSE, function (result) {
-        console.log('Event close with result', result);
+        console.log('Close Event with result', result);
     });
 
     var dialogForm = new CgDialog({
@@ -51,6 +51,8 @@
             console.log('close with result', result);
         }
     });
+
+    dialogForm.open();
 
 </script>
 </body>

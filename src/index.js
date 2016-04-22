@@ -1,19 +1,44 @@
 'use strict';
 
 import './common.less';
+import 'mouse-focused';
 
 import EventEmitter from 'events';
+import merge from 'merge';
 import utils from './utils';
 
-var DIALOG_CLASS = 'cg-dialog';
-var CONTAINER_CLASS = `${DIALOG_CLASS}-wrap`;
-var TITLE_CLASS = `${DIALOG_CLASS}-title`;
-var CONTENT_CLASS = `${DIALOG_CLASS}-content`;
-var BUTTONS_CLASS = `${DIALOG_CLASS}-buttons`;
-var OK_BUTTON_CLASS = `${DIALOG_CLASS}-button-ok`;
-var CANCEL_BUTTON_CLASS = `${DIALOG_CLASS}-button-cancel`;
+const DIALOG_CLASS = 'cg-dialog';
+const CONTAINER_CLASS = `${DIALOG_CLASS}-wrap`;
+const TITLE_CLASS = `${DIALOG_CLASS}-title`;
+const CONTENT_CLASS = `${DIALOG_CLASS}-content`;
+const BUTTONS_CLASS = `${DIALOG_CLASS}-buttons`;
+const CLOSE_BUTTON_CLASS = `${DIALOG_CLASS}-button-close`;
+const OK_BUTTON_CLASS = `${DIALOG_CLASS}-button-ok`;
+const CANCEL_BUTTON_CLASS = `${DIALOG_CLASS}-button-cancel`;
+const FORCE_FOCUSED_CLASS = `is-force-focused`;
+
+const CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
 class CgDialog extends EventEmitter {
+
+    static get DEFAULT_SETTINGS() {
+        var thisClass = this;
+        return {
+            title: '',
+            content: '',
+            onclose: ()=> {
+            },
+            onopen: ()=> {
+            },
+            type: thisClass.TYPES.OK,
+            isModal: false,
+            classes: [],
+            buttonTexts: {
+                ok: 'Ok',
+                cancel: 'Cancel'
+            }
+        };
+    }
 
     static get EVENTS() {
         if (!this._EVENTS) {
@@ -29,8 +54,7 @@ class CgDialog extends EventEmitter {
         if (!this._TYPES) {
             this._TYPES = {
                 OK: 'ok',
-                OK_CANCEL: 'ok_cancel',
-                YES_NO: 'yes_no'
+                OK_CANCEL: 'ok_cancel'
             };
         }
         return this._TYPES;
@@ -40,34 +64,56 @@ class CgDialog extends EventEmitter {
         super();
         this._applySettings(settings);
         this._render();
+        this._addListeners();
+        this.close(false, false);
+    }
+
+    _addListeners() {
+        this.domElement.addEventListener('blur', () => {
+            utils.removeClass(this.domElement, FORCE_FOCUSED_CLASS);
+        });
+
+        this.okButton.addEventListener('click', () => {
+            this.close(true);
+        });
+
+        this.cancelButton.addEventListener('click', () => {
+            this.close(false);
+        });
+
+        if (!this.settings.isModal) {
+            this.closeButton.addEventListener('click', () => {
+                this.close(true);
+            });
+            this.wrapElement.addEventListener('click', (e) => {
+                this.close(false);
+            });
+            this.domElement.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+        }
+
     }
 
     _applySettings(settings) {
-        this.title = settings.title || '';
-        this.content = settings.content || '';
-        this.onclose = settings.onclose || function () {
-            };
-        this.onopen = settings.onopen || function () {
-            };
-        this.type = settings.type || this.constructor.TYPES.OK;
-        this.isModal = settings.isModal || this.type != this.constructor.TYPES.OK;
-
-        this.classes = settings.classes || [];
-        if (!Array.isArray(this.classes)) {
-            this.classes = [this.classes];
+        this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
+        this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
+        if (!Array.isArray(this.settings.classes)) {
+            this.settings.classes = [this.settings.classes];
         }
     }
 
     _render() {
-        var dialogClasses = `${DIALOG_CLASS} ${this.classes.join(' ')}`;
+        var dialogClasses = `${DIALOG_CLASS} ${this.settings.classes.join(' ')}`;
         var elementHTML = `
             <div class="${CONTAINER_CLASS}">
-                <div class="${dialogClasses.trim()}">
-                    <div class="${TITLE_CLASS}">${this.title}</div>
+                <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="0">
+                    <div class="${TITLE_CLASS}">${this.settings.title}</div>
+                    <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
                     <div class="${CONTENT_CLASS}"></div>
                     <div class="${BUTTONS_CLASS}">
-                        <button class="${OK_BUTTON_CLASS}"></button>
-                        <button class="${CANCEL_BUTTON_CLASS}"></button>
+                        <button class="${OK_BUTTON_CLASS}">${this.settings.buttonTexts.ok}</button>
+                        <button class="${CANCEL_BUTTON_CLASS}">${this.settings.buttonTexts.cancel}</button>
                     </div>
                 </div>
             </div>
@@ -79,51 +125,23 @@ class CgDialog extends EventEmitter {
         this.domElement = this.wrapElement.querySelector(`.${DIALOG_CLASS}`);
         this.titleElement = this.domElement.querySelector(`.${TITLE_CLASS}`);
         this.contentElement = this.domElement.querySelector(`.${CONTENT_CLASS}`);
+        this.closeButton = this.domElement.querySelector(`.${CLOSE_BUTTON_CLASS}`);
         this.okButton = this.domElement.querySelector(`.${OK_BUTTON_CLASS}`);
         this.cancelButton = this.domElement.querySelector(`.${CANCEL_BUTTON_CLASS}`);
 
-        this.okButton.addEventListener('click', () => {
-            this.close(true);
-        });
-
-        this.cancelButton.addEventListener('click', () => {
-            this.close(false);
-        });
-
-        if (!this.isModal) {
-            this.wrapElement.addEventListener('click', () => {
-                this.close(false);
-            });
-            this.domElement.addEventListener('click', function (e) {
-                e.stopPropagation();
-            });
+        if (this.settings.isModal) {
+            this.closeButton.remove();
+        }
+        if (this.settings.type == this.constructor.TYPES.OK) {
+            this.cancelButton.remove();
         }
 
-        if (typeof this.content === 'string') {
-            this.contentElement.innerHTML = this.content;
+        if (typeof this.settings.content === 'string') {
+            this.contentElement.innerHTML = this.settings.content;
         }
-        else if (this.content instanceof Element) {
-            this.contentElement.appendChild(this.content);
+        else if (this.settings.content instanceof Element) {
+            this.contentElement.appendChild(this.settings.content);
         }
-
-        switch (this.type) {
-            case this.constructor.TYPES.OK:
-                this.okButton.innerHTML = 'Ok';
-                this.cancelButton.style.display = 'none';
-                break;
-            case this.constructor.TYPES.OK_CANCEL:
-                this.okButton.innerHTML = 'Ok';
-                this.cancelButton.innerHTML = 'Cancel';
-                break;
-            case this.constructor.TYPES.YES_NO:
-                this.okButton.innerHTML = 'Yes';
-                this.cancelButton.innerHTML = 'No';
-                break;
-            default:
-                throw new Error(this.constructor.name + '._render: unknown type:"' + this.type + '"');
-        }
-
-        this.close(false, false);
     }
 
     /**
@@ -138,7 +156,7 @@ class CgDialog extends EventEmitter {
         this.wrapElement.style.display = 'none';
         if (emitEvent) {
             this.emit(this.constructor.EVENTS.CLOSE, result);
-            this.onclose(result)
+            this.settings.onclose(result)
         }
     }
 
@@ -148,8 +166,10 @@ class CgDialog extends EventEmitter {
      */
     open(emitEvent = true) {
         this.wrapElement.style.display = '';
+        this.domElement.focus();
+        utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
         if (emitEvent) {
-            this.onopen();
+            this.settings.onopen();
             this.emit(this.constructor.EVENTS.OPEN);
         }
     }

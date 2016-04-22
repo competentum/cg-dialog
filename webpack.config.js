@@ -6,8 +6,7 @@ var upperCamelCase = require('uppercamelcase');
 var buildPath = path.resolve(__dirname, '.');
 
 var pkg = require('./package.json');
-var banner = pkg.name + ' v' + pkg.version + ' - ' + pkg.description + '\n'
-    + cgBanner;
+var banner = pkg.name + ' v' + pkg.version + ' - ' + pkg.description + '\n' + cgBanner;
 
 var entry = {};
 entry[pkg.name] = [path.resolve(__dirname, './src/index.js')];
