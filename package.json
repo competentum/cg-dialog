@@ -2,7 +2,7 @@
   "name": "cg-dialog",
   "version": "0.0.5",
   "description": "Accessible Dialog Component",
-  "main": "src/index.js",
+  "main": "cg-dialog.js",
   "scripts": {
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
