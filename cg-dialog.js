@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v0.0.5 - Accessible Dialog Component
+ * cg-dialog v0.0.6 - Accessible Dialog Component
  * (c) 2015-2016 Competentum Group | http://competentum.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
