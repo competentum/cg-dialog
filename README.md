@@ -8,6 +8,8 @@ Component can be installed with npm (works in Competentum VPN only):
 npm install --save git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git
 ```
 
+> Note that source code is written on ECMAScript 2015 (ES6) using [Babel](https://babeljs.io/) transpiler. So if you are going to use this component via `require` you should use es6 traspiler too or use compiled script version (cg-dialog.js) from the root directory.
+
 ## Usage
 ```javascript
 var CgDialog = require('cg-dialog'); // this line can be omitted if component was added via script tag

@@ -93,6 +93,14 @@ class CgDialog extends EventEmitter {
             });
         }
 
+        // trapping focus when dialog is opened
+        document.addEventListener('focus', (event) => {
+            if (this.isOpen && !this.domElement.contains(event.target)) {
+                event.stopPropagation();
+                this.domElement.focus();
+            }
+        }, true);
+
     }
 
     _applySettings(settings) {
@@ -107,7 +115,7 @@ class CgDialog extends EventEmitter {
         var dialogClasses = `${DIALOG_CLASS} ${this.settings.classes.join(' ')}`;
         var elementHTML = `
             <div class="${CONTAINER_CLASS}">
-                <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="0">
+                <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="-1">
                     <div class="${TITLE_CLASS}">${this.settings.title}</div>
                     <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
                     <div class="${CONTENT_CLASS}"></div>
@@ -137,6 +145,7 @@ class CgDialog extends EventEmitter {
         }
 
         if (typeof this.settings.content === 'string') {
+            this.contentElement.setAttribute('tabindex', '0');
             this.contentElement.innerHTML = this.settings.content;
         }
         else if (this.settings.content instanceof Element) {
@@ -146,13 +155,11 @@ class CgDialog extends EventEmitter {
 
     /**
      * Close dialog.
-     * @param result
-     * @param [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
+     * @param {boolean} [result]
+     * @param {boolean} [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
      */
-    close(result, emitEvent = true) {
-        if (typeof result === 'undefined') {
-            result = false;
-        }
+    close(result = false, emitEvent = true) {
+        this.isOpen = false;
         this.wrapElement.style.display = 'none';
         if (emitEvent) {
             this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -162,11 +169,12 @@ class CgDialog extends EventEmitter {
 
     /**
      * Open dialog.
-     * @param emitEvent - if true, dialog instance emits OPEN event
+     * @param {boolean} [emitEvent=true] - if true, dialog instance emits OPEN event
      */
     open(emitEvent = true) {
         this.wrapElement.style.display = '';
         this.domElement.focus();
+        this.isOpen = true;
         utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
         if (emitEvent) {
             this.settings.onopen();

@@ -26,6 +26,10 @@
   }
 }
 
+.is-mouse-focused:focus {
+  outline: none;
+}
+
 .cg-dialog-wrap {
   position: fixed;
   width: 100%;
@@ -99,6 +103,11 @@
   }
 
   .dotted-focus(@close-button-outline-padding)
+}
+
+.cg-dialog-content:focus {
+  outline: 1px dotted black;
+  outline-offset: @dialog-outline-offset;
 }
 
 .cg-dialog-buttons {
