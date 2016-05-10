@@ -16,7 +16,9 @@ var CgDialog = require('cg-dialog'); // this line can be omitted if component wa
 
 var settings = {
     title: 'Dialog example',
-    content: 'This is dummy copy. It is not meant to be read. It has been placed here solely to demonstrate the look and feel of finished, typeset text. Only for show. He who searches for meaning here will be sorely disappointed.',
+    content: 'This is dummy copy. It is not meant to be read. ' +
+             'It has been placed here solely to demonstrate the look and feel of finished, typeset text. ' +
+             'Only for show. He who searches for meaning here will be sorely disappointed.',
     //content: document.getElementById('dialog_form'), // can be DOM Element
     type: CgDialog.TYPES.OK, // can be OK or OK_CANCEL
     // opening and closing of the dialog can be handled in callbacks
