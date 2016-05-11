@@ -250,6 +250,12 @@
 							this.domElement.addEventListener('click', function (e) {
 								e.stopPropagation();
 							});
+							document.addEventListener('keydown', function (e) {
+								// close when escape is pressed
+								if (_this2.isOpen && e.keyCode == 27) {
+									_this2.close(false);
+								}
+							});
 						}
 
 						// trapping focus when dialog is opened

@@ -91,6 +91,12 @@ class CgDialog extends EventEmitter {
             this.domElement.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
+            document.addEventListener('keydown', (e) => {
+                // close when escape is pressed
+                if (this.isOpen && e.keyCode == 27) {
+                    this.close(false);
+                }
+            });
         }
 
         // trapping focus when dialog is opened
