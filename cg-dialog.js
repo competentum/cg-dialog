@@ -228,6 +228,7 @@
 					value: function _addListeners() {
 						var _this2 = this;
 
+						var isMouseDownOnWrap = false;
 						this.domElement.addEventListener('blur', function () {
 							_utils2.default.removeClass(_this2.domElement, FORCE_FOCUSED_CLASS);
 						});
@@ -244,8 +245,12 @@
 							this.closeButton.addEventListener('click', function () {
 								_this2.close(true);
 							});
+							this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
+							this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
 							this.wrapElement.addEventListener('click', function (e) {
-								_this2.close(false);
+								if (e.target == _this2.wrapElement && isMouseDownOnWrap) {
+									_this2.close(false);
+								}
 							});
 							this.domElement.addEventListener('click', function (e) {
 								e.stopPropagation();
@@ -265,6 +270,22 @@
 								_this2.domElement.focus();
 							}
 						}, true);
+
+						function onWrapMouseDown(e) {
+							if (this != e.target) return;
+							isMouseDownOnWrap = true;
+							document.addEventListener('mouseup', onWrapMouseUp);
+							document.addEventListener('touchend', onWrapMouseUp);
+						}
+
+						function onWrapMouseUp() {
+							document.removeEventListener('mouseup', onWrapMouseUp);
+							document.removeEventListener('touchend', onWrapMouseUp);
+							// wait while wrap click handler will executed
+							setTimeout(function () {
+								isMouseDownOnWrap = false;
+							});
+						}
 					}
 				}, {
 					key: '_applySettings',

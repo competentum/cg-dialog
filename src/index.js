@@ -69,6 +69,7 @@ class CgDialog extends EventEmitter {
     }
 
     _addListeners() {
+        var isMouseDownOnWrap = false;
         this.domElement.addEventListener('blur', () => {
             utils.removeClass(this.domElement, FORCE_FOCUSED_CLASS);
         });
@@ -85,10 +86,14 @@ class CgDialog extends EventEmitter {
             this.closeButton.addEventListener('click', () => {
                 this.close(true);
             });
+            this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
+            this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
             this.wrapElement.addEventListener('click', (e) => {
-                this.close(false);
+                if (e.target == this.wrapElement && isMouseDownOnWrap) {
+                    this.close(false);
+                }
             });
-            this.domElement.addEventListener('click', function (e) {
+            this.domElement.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
             document.addEventListener('keydown', (e) => {
@@ -107,6 +112,22 @@ class CgDialog extends EventEmitter {
             }
         }, true);
 
+        function onWrapMouseDown(e) {
+            if (this != e.target)
+                return;
+            isMouseDownOnWrap = true;
+            document.addEventListener('mouseup', onWrapMouseUp);
+            document.addEventListener('touchend', onWrapMouseUp);
+        }
+
+        function onWrapMouseUp() {
+            document.removeEventListener('mouseup', onWrapMouseUp);
+            document.removeEventListener('touchend', onWrapMouseUp);
+            // wait while wrap click handler will executed
+            setTimeout(() => {
+                isMouseDownOnWrap = false;
+            })
+        }
     }
 
     _applySettings(settings) {
