@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v0.0.7 - Accessible Dialog Component
+ * cg-dialog v0.0.8 - Accessible Dialog Component
  * (c) 2015-2016 Competentum Group | http://competentum.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -82,75 +82,13 @@
 
 			'use strict';
 
-			Object.defineProperty(exports, "__esModule", {
-				value: true
-			});
-
-			var _createClass = function () {
-				function defineProperties(target, props) {
-					for (var i = 0; i < props.length; i++) {
-						var descriptor = props[i];
-						descriptor.enumerable = descriptor.enumerable || false;
-						descriptor.configurable = true;
-						if ("value" in descriptor) descriptor.writable = true;
-						Object.defineProperty(target, descriptor.key, descriptor);
-					}
-				}
-
-				return function (Constructor, protoProps, staticProps) {
-					if (protoProps) defineProperties(Constructor.prototype, protoProps);
-					if (staticProps) defineProperties(Constructor, staticProps);
-					return Constructor;
-				};
-			}();
-
 			__webpack_require__(2);
-
 			__webpack_require__(7);
 
-			var _events = __webpack_require__(9);
-
-			var _events2 = _interopRequireDefault(_events);
-
-			var _merge = __webpack_require__(10);
-
-			var _merge2 = _interopRequireDefault(_merge);
-
-			var _utils = __webpack_require__(12);
-
-			var _utils2 = _interopRequireDefault(_utils);
-
-			function _interopRequireDefault(obj) {
-				return obj && obj.__esModule ? obj : {default: obj};
-			}
-
-			function _classCallCheck(instance, Constructor) {
-				if (!(instance instanceof Constructor)) {
-					throw new TypeError("Cannot call a class as a function");
-				}
-			}
-
-			function _possibleConstructorReturn(self, call) {
-				if (!self) {
-					throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-				}
-				return call && (typeof call === "object" || typeof call === "function") ? call : self;
-			}
-
-			function _inherits(subClass, superClass) {
-				if (typeof superClass !== "function" && superClass !== null) {
-					throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-				}
-				subClass.prototype = Object.create(superClass && superClass.prototype, {
-					constructor: {
-						value: subClass,
-						enumerable: false,
-						writable: true,
-						configurable: true
-					}
-				});
-				if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-			}
+			var EventEmitter = __webpack_require__(9);
+			var inherits = __webpack_require__(10);
+			var merge = __webpack_require__(11);
+			var utils = __webpack_require__(13);
 
 			var DIALOG_CLASS = 'cg-dialog';
 			var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
@@ -164,219 +102,214 @@
 
 			var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
-			var CgDialog = function (_EventEmitter) {
-				_inherits(CgDialog, _EventEmitter);
+			/**
+			 * Dialog's customizing settings
+			 * @typedef {Object} DialogSettings
+			 * @property {string} title
+			 * @property {string|Node} content
+			 * @property {Function} onclose
+			 * @property {Function} onopen
+			 * @property {string} type
+			 * @property {boolean} isModal
+			 * @property {Array} classes
+			 * @property {{ok: string, cancel: string}} buttonTexts
+			 */
 
-				_createClass(CgDialog, null, [{
-					key: 'DEFAULT_SETTINGS',
-					get: function get() {
-						var thisClass = this;
-						return {
-							title: '',
-							content: '',
-							onclose: function onclose() {
-							},
-							onopen: function onopen() {
-							},
-							type: thisClass.TYPES.OK,
-							isModal: false,
-							classes: [],
-							buttonTexts: {
-								ok: 'Ok',
-								cancel: 'Cancel'
-							}
-						};
-					}
-				}, {
-					key: 'EVENTS',
-					get: function get() {
-						if (!this._EVENTS) {
-							this._EVENTS = {
-								OPEN: 'open',
-								CLOSE: 'close'
-							};
+			/**
+			 *
+			 * @param {DialogSettings} settings
+			 * @constructor
+			 */
+			function CgDialog(settings) {
+				EventEmitter.call(this);
+				this._applySettings(settings);
+				this._render();
+				this._addListeners();
+				this.close(false, false);
+			}
+
+			inherits(CgDialog, EventEmitter);
+
+			CgDialog.TYPES = {
+				OK: 'ok',
+				OK_CANCEL: 'ok_cancel'
+			};
+
+			/**
+			 *
+			 * @type DialogSettings
+			 */
+			CgDialog.DEFAULT_SETTINGS = {
+				title: '',
+				content: '',
+				onclose: function () {
+				},
+				onopen: function () {
+				},
+				type: CgDialog.TYPES.OK,
+				isModal: false,
+				classes: [],
+				buttonTexts: {
+					ok: 'Ok',
+					cancel: 'Cancel'
+				}
+			};
+
+			CgDialog.EVENTS = {
+				OPEN: 'open',
+				CLOSE: 'close'
+			};
+
+			CgDialog.prototype._addListeners = function _addListeners() {
+				var self = this;
+				var isMouseDownOnWrap = false;
+				this.domElement.addEventListener('blur', function () {
+					utils.removeClass(self.domElement, FORCE_FOCUSED_CLASS);
+				});
+
+				this.okButton.addEventListener('click', function () {
+					self.close(true);
+				});
+
+				this.cancelButton.addEventListener('click', function () {
+					self.close(false);
+				});
+
+				if (!this.settings.isModal) {
+					this.closeButton.addEventListener('click', function () {
+						self.close(true);
+					});
+					this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
+					this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
+					this.wrapElement.addEventListener('click', function (e) {
+						if (e.target == self.wrapElement && isMouseDownOnWrap) {
+							self.close(false);
 						}
-						return this._EVENTS;
-					}
-				}, {
-					key: 'TYPES',
-					get: function get() {
-						if (!this._TYPES) {
-							this._TYPES = {
-								OK: 'ok',
-								OK_CANCEL: 'ok_cancel'
-							};
+					});
+					this.domElement.addEventListener('click', function (e) {
+						e.stopPropagation();
+					});
+					document.addEventListener('keydown', function (e) {
+						// close when escape is pressed
+						if (self.isOpen && e.keyCode == 27) {
+							self.close(false);
 						}
-						return this._TYPES;
-					}
-				}]);
-
-				function CgDialog(settings) {
-					_classCallCheck(this, CgDialog);
-
-					var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CgDialog).call(this));
-
-					_this._applySettings(settings);
-					_this._render();
-					_this._addListeners();
-					_this.close(false, false);
-					return _this;
+					});
 				}
 
-				_createClass(CgDialog, [{
-					key: '_addListeners',
-					value: function _addListeners() {
-						var _this2 = this;
-
-						var isMouseDownOnWrap = false;
-						this.domElement.addEventListener('blur', function () {
-							_utils2.default.removeClass(_this2.domElement, FORCE_FOCUSED_CLASS);
-						});
-
-						this.okButton.addEventListener('click', function () {
-							_this2.close(true);
-						});
-
-						this.cancelButton.addEventListener('click', function () {
-							_this2.close(false);
-						});
-
-						if (!this.settings.isModal) {
-							this.closeButton.addEventListener('click', function () {
-								_this2.close(true);
-							});
-							this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
-							this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
-							this.wrapElement.addEventListener('click', function (e) {
-								if (e.target == _this2.wrapElement && isMouseDownOnWrap) {
-									_this2.close(false);
-								}
-							});
-							this.domElement.addEventListener('click', function (e) {
-								e.stopPropagation();
-							});
-							document.addEventListener('keydown', function (e) {
-								// close when escape is pressed
-								if (_this2.isOpen && e.keyCode == 27) {
-									_this2.close(false);
-								}
-							});
-						}
-
-						// trapping focus when dialog is opened
-						document.addEventListener('focus', function (event) {
-							if (_this2.isOpen && !_this2.domElement.contains(event.target)) {
-								event.stopPropagation();
-								_this2.domElement.focus();
-							}
-						}, true);
-
-						function onWrapMouseDown(e) {
-							if (this != e.target) return;
-							isMouseDownOnWrap = true;
-							document.addEventListener('mouseup', onWrapMouseUp);
-							document.addEventListener('touchend', onWrapMouseUp);
-						}
-
-						function onWrapMouseUp() {
-							document.removeEventListener('mouseup', onWrapMouseUp);
-							document.removeEventListener('touchend', onWrapMouseUp);
-							// wait while wrap click handler will executed
-							setTimeout(function () {
-								isMouseDownOnWrap = false;
-							});
-						}
+				// trapping focus when dialog is opened
+				document.addEventListener('focus', function (event) {
+					if (self.isOpen && !self.domElement.contains(event.target)) {
+						event.stopPropagation();
+						self.domElement.focus();
 					}
-				}, {
-					key: '_applySettings',
-					value: function _applySettings(settings) {
-						this.settings = (0, _merge2.default)({}, this.constructor.DEFAULT_SETTINGS, settings);
-						this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
-						if (!Array.isArray(this.settings.classes)) {
-							this.settings.classes = [this.settings.classes];
-						}
-					}
-				}, {
-					key: '_render',
-					value: function _render() {
-						var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
-						var elementHTML = '\n            <div class="' + CONTAINER_CLASS + '">\n                <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">\n                    <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>\n                    <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>\n                    <div class="' + CONTENT_CLASS + '"></div>\n                    <div class="' + BUTTONS_CLASS + '">\n                        <button class="' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>\n                        <button class="' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>\n                    </div>\n                </div>\n            </div>\n        ';
+				}, true);
 
-						this.wrapElement = _utils2.default.createHTML(elementHTML);
-						document.body.appendChild(this.wrapElement);
+				function onWrapMouseDown(e) {
+					if (this != e.target)
+						return;
+					isMouseDownOnWrap = true;
+					document.addEventListener('mouseup', onWrapMouseUp);
+					document.addEventListener('touchend', onWrapMouseUp);
+				}
 
-						this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
-						this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
-						this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
-						this.closeButton = this.domElement.querySelector('.' + CLOSE_BUTTON_CLASS);
-						this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
-						this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
+				function onWrapMouseUp() {
+					document.removeEventListener('mouseup', onWrapMouseUp);
+					document.removeEventListener('touchend', onWrapMouseUp);
+					// wait while wrap click handler will executed
+					setTimeout(function () {
+						isMouseDownOnWrap = false;
+					}, 0)
+				}
+			};
 
-						if (this.settings.isModal) {
-							this.closeButton.remove();
-						}
-						if (this.settings.type == this.constructor.TYPES.OK) {
-							this.cancelButton.remove();
-						}
+			CgDialog.prototype._applySettings = function (settings) {
+				/**
+				 * @type DialogSettings
+				 */
+				this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
+				this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
+				if (!Array.isArray(this.settings.classes)) {
+					this.settings.classes = [this.settings.classes];
+				}
+			};
 
-						if (typeof this.settings.content === 'string') {
-							this.contentElement.setAttribute('tabindex', '0');
-							this.contentElement.innerHTML = this.settings.content;
-						} else if (this.settings.content instanceof Element) {
-							this.contentElement.appendChild(this.settings.content);
-						}
-					}
+			CgDialog.prototype._render = function () {
+				var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
+				var elementHTML =
+					'<div class="' + CONTAINER_CLASS + '">' +
+					'    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' +
+					'        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' +
+					'        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
+					'        <div class="' + CONTENT_CLASS + '"></div>' +
+					'        <div class="' + BUTTONS_CLASS + '">' +
+					'            <button class="' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
+					'            <button class="' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
+					'        </div>' +
+					'    </div>' +
+					'</div>';
 
-					/**
-					 * Close dialog.
-					 * @param {boolean} [result]
-					 * @param {boolean} [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
-					 */
+				this.wrapElement = utils.createHTML(elementHTML);
+				document.body.appendChild(this.wrapElement);
 
-				}, {
-					key: 'close',
-					value: function close() {
-						var result = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-						var emitEvent = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+				this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
+				this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
+				this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
+				this.closeButton = this.domElement.querySelector('.' + CLOSE_BUTTON_CLASS);
+				this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
+				this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
 
-						this.isOpen = false;
-						this.wrapElement.style.display = 'none';
-						if (emitEvent) {
-							this.emit(this.constructor.EVENTS.CLOSE, result);
-							this.settings.onclose(result);
-						}
-					}
+				if (this.settings.isModal) {
+					this.closeButton.remove();
+				}
+				if (this.settings.type == this.constructor.TYPES.OK) {
+					this.cancelButton.remove();
+				}
 
-					/**
-					 * Open dialog.
-					 * @param {boolean} [emitEvent=true] - if true, dialog instance emits OPEN event
-					 */
+				if (typeof this.settings.content === 'string') {
+					this.contentElement.setAttribute('tabindex', '0');
+					this.contentElement.innerHTML = this.settings.content;
+				}
+				else if (this.settings.content instanceof Element) {
+					this.contentElement.appendChild(this.settings.content);
+				}
+			};
 
-				}, {
-					key: 'open',
-					value: function open() {
-						var emitEvent = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+			/**
+			 * Close dialog.
+			 * @param {boolean} [result]
+			 * @param {boolean} [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
+			 */
+			CgDialog.prototype.close = function (result = false, emitEvent = true) {
+				this.isOpen = false;
+				this.wrapElement.style.display = 'none';
+				if (emitEvent) {
+					this.emit(this.constructor.EVENTS.CLOSE, result);
+					this.settings.onclose(result)
+				}
+			};
 
-						this.wrapElement.style.display = '';
-						this.domElement.focus();
-						this.isOpen = true;
-						_utils2.default.addClass(this.domElement, FORCE_FOCUSED_CLASS);
-						if (emitEvent) {
-							this.settings.onopen();
-							this.emit(this.constructor.EVENTS.OPEN);
-						}
-					}
-				}]);
+			/**
+			 * Open dialog.
+			 * @param {boolean} [emitEvent=true] - if true, dialog instance emits OPEN event
+			 */
+			CgDialog.prototype.open = function (emitEvent = true) {
+				this.wrapElement.style.display = '';
+				this.domElement.focus();
+				this.isOpen = true;
+				utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
+				if (emitEvent) {
+					this.settings.onopen();
+					this.emit(this.constructor.EVENTS.OPEN);
+				}
+			};
 
-				return CgDialog;
-			}(_events2.default);
 
 			if (typeof jQuery !== 'undefined') {
 				//todo: add plugin
 			}
 
-			exports.default = CgDialog;
-			module.exports = exports['default'];
+			module.exports = CgDialog;
 
 			/***/
 		},
@@ -1156,6 +1089,37 @@
 			/***/
 		},
 		/* 10 */
+		/***/ function (module, exports) {
+
+			if (typeof Object.create === 'function') {
+				// implementation from standard node.js 'util' module
+				module.exports = function inherits(ctor, superCtor) {
+					ctor.super_ = superCtor
+					ctor.prototype = Object.create(superCtor.prototype, {
+						constructor: {
+							value: ctor,
+							enumerable: false,
+							writable: true,
+							configurable: true
+						}
+					});
+				};
+			} else {
+				// old school shim for old browsers
+				module.exports = function inherits(ctor, superCtor) {
+					ctor.super_ = superCtor
+					var TempCtor = function () {
+					}
+					TempCtor.prototype = superCtor.prototype
+					ctor.prototype = new TempCtor()
+					ctor.prototype.constructor = ctor
+				}
+			}
+
+
+			/***/
+		},
+		/* 11 */
 		/***/ function (module, exports, __webpack_require__) {
 
 			/* WEBPACK VAR INJECTION */
@@ -1336,11 +1300,11 @@
 
 				})(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
 				/* WEBPACK VAR INJECTION */
-			}.call(exports, __webpack_require__(11)(module)))
+			}.call(exports, __webpack_require__(12)(module)))
 
 			/***/
 		},
-		/* 11 */
+		/* 12 */
 		/***/ function (module, exports) {
 
 			module.exports = function (module) {
@@ -1358,22 +1322,19 @@
 
 			/***/
 		},
-		/* 12 */
+		/* 13 */
 		/***/ function (module, exports) {
 
 			'use strict';
 
-			Object.defineProperty(exports, "__esModule", {
-				value: true
-			});
-			exports.default = {
+			module.exports = {
 
 				/**
 				 *
 				 * @param {Element} element
 				 * @param {string} className
 				 */
-				addClass: function addClass(element, className) {
+				addClass: function (element, className) {
 					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
 					if (re.test(element.className)) return;
 					element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
@@ -1384,7 +1345,7 @@
 				 * @param {Element} element
 				 * @param {string} className
 				 */
-				removeClass: function removeClass(element, className) {
+				removeClass: function (element, className) {
 					var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
 					element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
 				},
@@ -1399,7 +1360,6 @@
 					return div.firstChild;
 				}
 			};
-			module.exports = exports['default'];
 
 			/***/
 		}
