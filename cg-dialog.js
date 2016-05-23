@@ -284,8 +284,8 @@
 				this.isOpen = false;
 				this.wrapElement.style.display = 'none';
 				if (emitEvent) {
+					this.settings.onclose(result);
 					this.emit(this.constructor.EVENTS.CLOSE, result);
-					this.settings.onclose(result)
 				}
 			};
 

@@ -3,8 +3,6 @@
 require('./common.less');
 require('mouse-focused');
 
-import util from 'util';
-
 var EventEmitter = require('events');
 var inherits = require('inherits');
 var merge = require('merge');
