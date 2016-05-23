@@ -20,6 +20,7 @@ npm install --save git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git
 
 ## Usage
 Simple dialog example:
+
 ```javascript
 var CgDialog = require('cg-dialog'); // this line can be omitted if component was added via script tag
 
