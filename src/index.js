@@ -23,19 +23,19 @@ var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 /**
  * Dialog's customizing settings
  * @typedef {Object} DialogSettings
- * @property {string} title
- * @property {string|Node} content
- * @property {Function} onclose
- * @property {Function} onopen
- * @property {string} type
- * @property {boolean} isModal
- * @property {Array} classes
- * @property {{ok: string, cancel: string}} buttonTexts
+ * @property {string} title - Dialog's title.
+ * @property {string | Element} content - Content which will be added to dialog's DOM element.
+ * @property {Function} onclose - Function which will be called when dialog closes right before CLOSE event will be emitted. Result (boolean) will be passed as function argument.
+ * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
+ * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
+ * @property {boolean} isModal - If it is true dialog can be closed using OK or CANCEL buttons only.
+ * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
+ * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
  */
 
 /**
  *
- * @param {DialogSettings} settings
+ * @param {DialogSettings} settings - Dialog's settings, all undefined settings will be taken from {@link CgDialog.DEFAULT_SETTINGS}
  * @constructor
  */
 function CgDialog(settings) {
@@ -194,10 +194,15 @@ CgDialog.prototype._render = function () {
 
 /**
  * Close dialog.
- * @param {boolean} [result]
- * @param {boolean} [emitEvent=true] - if true, dialog instance emits CLOSE event with result argument
+ * @param {boolean} [result = false]
+ * @param {boolean} [emitEvent=true] - if true, dialog instance will emit CLOSE event with result argument
  */
-CgDialog.prototype.close = function (result = false, emitEvent = true) {
+CgDialog.prototype.close = function (result, emitEvent) {
+    if (typeof result === 'undefined')
+        result = false;
+    if (typeof emitEvent === 'undefined')
+        emitEvent = true;
+
     this.isOpen = false;
     this.wrapElement.style.display = 'none';
     if (emitEvent) {
@@ -208,9 +213,12 @@ CgDialog.prototype.close = function (result = false, emitEvent = true) {
 
 /**
  * Open dialog.
- * @param {boolean} [emitEvent=true] - if true, dialog instance emits OPEN event
+ * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
  */
-CgDialog.prototype.open = function (emitEvent = true) {
+CgDialog.prototype.open = function (emitEvent) {
+    if (typeof emitEvent === 'undefined')
+        emitEvent = true;
+
     this.wrapElement.style.display = '';
     this.domElement.focus();
     this.isOpen = true;
