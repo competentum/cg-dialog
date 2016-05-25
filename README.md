@@ -9,9 +9,17 @@
 - [API](#api)
     - [Static properties](#static-properties)
     - [Constructor](#constructor)
-    - [dialog.on](#method_on)
-    - [dialog.open](#method_open)
-    - [dialog.close](#method_close)
+    - [Instance properties](#instance-properties)
+        - domElement
+        - titleElement
+        - contentElement
+        - closeButton
+        - okButton
+        - cancelButton
+    - [Instance methods](#instance-methods)
+        - [on](#method_on)
+        - [open](#method_open)
+        - [close](#method_close)
 
 ## Installation
 Component can be installed with npm (works in Competentum VPN only):
@@ -54,7 +62,7 @@ dialog.open();
 
 ## API
 
-#### Static properties
+### Static properties
 - `TYPES` *{Object}* Available dialog types.
     - `OK` - Dialog with one confirmation button. By default dialog of this type is NOT modal (see [`isModal`](#constructor) setting).
     - `OK_CANCEL` - Dialog with denial and confirmation buttons. By default dialog of this type is modal (see [`isModal`](#constructor) setting).
@@ -75,7 +83,7 @@ See [dialog.on](#method_on) method to know how to use events.
 
 
 <a name="constructor"></a>
-#### new CgDialog(settings) - constructor
+### `new CgDialog(settings)` - constructor
 
 - `settings` *{Object}* Set of configurable options to set on the dialog. Can have the following fields:
     - `title` *{string}* Dialog's title. Default = `''`.
@@ -89,8 +97,31 @@ See [dialog.on](#method_on) method to know how to use events.
         - `ok` *{string}* Ok button text. Default = `'Ok'`.
         - `cancel` *{string}* Cancel button text. Default = `'Cancel'`.
 
+
+### Instance properties
+
+#### `domElement` *{Element}*
+Root element of the dialog instance.
+
+#### `titleElement` *{Element}*
+
+#### `contentElement` *{Element}*
+Content container.
+
+#### `closeButton` *{Element}*
+Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
+
+#### `okButton` *{Element}*
+Confirmation button element.
+
+#### `cancelButton` *{Element}*
+Denial button element. It is visible in `OK_CANCEL` type of the dialog.
+
+
+### Instance methods
+
 <a name="method_on"></a>
-#### dialog.on(eventName, listener)
+#### `on(eventName, listener)`
 - `eventName` *{string}* The name of the event.
 - `listener` *{Function}* The callback function.
 
@@ -105,13 +136,13 @@ Callback `result` argument is `true` if dialog will be closed by clicking confir
 > Current class extends Node.js EventEmitter. More information about working with events you can get [here](https://nodejs.org/api/events.html).
 
 <a name="method_open"></a>
-#### dialog.open([emitEvent = true])
+#### `open([emitEvent = true])`
 - `emitEvent` *{boolean}* If true, dialog instance will emit CgDialog.EVENTS.OPEN event and onopen function will be called. Default = `true`
 
 Opens dialog.
 
 <a name="method_close"></a>
-#### dialog.close([result = false], [emitEvent = true])
+#### `close([result = false], [emitEvent = true])`
 - `result` *{boolean}* Parameter which will be passed to callback function. Default = `false`
 - `emitEvent` *{boolean}* If true, dialog instance will emit CgDialog.EVENTS.OPEN event and onclose function will be called. Default = `true`
 
