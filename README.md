@@ -96,19 +96,19 @@ See [dialog.on](#method_on) method to know how to use events.
 ### Instance properties
 
 #### DOM Elements
-- `domElement` - Root element of the dialog instance.
-- `titleElement`
-- `contentElement` - Content container.
-- `closeButton` - Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
-- `okButton` - Confirmation button element.
-- `cancelButton` - Denial button element. It is visible in `OK_CANCEL` type of the dialog.
+- `.domElement` - Root element of the dialog instance.
+- `.titleElement`
+- `.contentElement` - Content container.
+- `.closeButton` - Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
+- `.okButton` - Confirmation button element.
+- `.cancelButton` - Denial button element. It is visible in `OK_CANCEL` type of the dialog.
 
 All of these elements are instances of the [Element](https://developer.mozilla.org/docs/Web/API/Element) class.
 
 ### Instance methods
 
 <a name="method_on"></a>
-#### `on(eventName, listener)`
+#### `.on(eventName, listener)`
 - `eventName` *{string}* The name of the event.
 - `listener` *{Function}* The callback function.
 
@@ -123,13 +123,13 @@ Callback `result` argument is `true` if dialog will be closed by clicking confir
 > Current class extends Node.js EventEmitter. More information about working with events you can get [here](https://nodejs.org/api/events.html).
 
 <a name="method_open"></a>
-#### `open([emitEvent = true])`
+#### `.open([emitEvent = true])`
 - `emitEvent` *{boolean}* If true, dialog instance will emit CgDialog.EVENTS.OPEN event and onopen function will be called. Default = `true`
 
 Opens dialog.
 
 <a name="method_close"></a>
-#### `close([result = false], [emitEvent = true])`
+#### `.close([result = false], [emitEvent = true])`
 - `result` *{boolean}* Parameter which will be passed to callback function. Default = `false`
 - `emitEvent` *{boolean}* If true, dialog instance will emit CgDialog.EVENTS.OPEN event and onclose function will be called. Default = `true`
 
