@@ -96,13 +96,14 @@ See [dialog.on](#method_on) method to know how to use events.
 ### Instance properties
 
 #### DOM Elements
-- `domElement` *{Element}* Root element of the dialog instance.
-- `titleElement` *{Element}*
-- `contentElement` *{Element}* Content container.
-- `closeButton` *{Element}* Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
-- `okButton` *{Element}* Confirmation button element.
-- `cancelButton` *{Element}* Denial button element. It is visible in `OK_CANCEL` type of the dialog.
+- `domElement` - Root element of the dialog instance.
+- `titleElement`
+- `contentElement` - Content container.
+- `closeButton` - Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
+- `okButton` - Confirmation button element.
+- `cancelButton` - Denial button element. It is visible in `OK_CANCEL` type of the dialog.
 
+All of these elements are instances of the [Element](https://developer.mozilla.org/docs/Web/API/Element) class.
 
 ### Instance methods
 
