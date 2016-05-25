@@ -10,12 +10,7 @@
     - [Static properties](#static-properties)
     - [Constructor](#constructor)
     - [Instance properties](#instance-properties)
-        - domElement
-        - titleElement
-        - contentElement
-        - closeButton
-        - okButton
-        - cancelButton
+        - [DOM Elements](#dom-elements)
     - [Instance methods](#instance-methods)
         - [on](#method_on)
         - [open](#method_open)
@@ -100,22 +95,13 @@ See [dialog.on](#method_on) method to know how to use events.
 
 ### Instance properties
 
-#### `domElement` *{Element}*
-Root element of the dialog instance.
-
-#### `titleElement` *{Element}*
-
-#### `contentElement` *{Element}*
-Content container.
-
-#### `closeButton` *{Element}*
-Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
-
-#### `okButton` *{Element}*
-Confirmation button element.
-
-#### `cancelButton` *{Element}*
-Denial button element. It is visible in `OK_CANCEL` type of the dialog.
+#### DOM Elements
+- `domElement` *{Element}* Root element of the dialog instance.
+- `titleElement` *{Element}*
+- `contentElement` *{Element}* Content container.
+- `closeButton` *{Element}* Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
+- `okButton` *{Element}* Confirmation button element.
+- `cancelButton` *{Element}* Denial button element. It is visible in `OK_CANCEL` type of the dialog.
 
 
 ### Instance methods
