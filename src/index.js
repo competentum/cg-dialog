@@ -177,10 +177,10 @@ CgDialog.prototype._render = function () {
     this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
 
     if (this.settings.isModal) {
-        this.closeButton.remove();
+        utils.removeNode(this.closeButton);
     }
     if (this.settings.type == this.constructor.TYPES.OK) {
-        this.cancelButton.remove();
+        utils.removeNode(this.cancelButton);
     }
 
     if (typeof this.settings.content === 'string') {

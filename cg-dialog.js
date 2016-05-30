@@ -244,10 +244,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
 
 	    if (this.settings.isModal) {
-	        this.closeButton.remove();
+			utils.removeNode(this.closeButton);
 	    }
 	    if (this.settings.type == this.constructor.TYPES.OK) {
-	        this.cancelButton.remove();
+			utils.removeNode(this.cancelButton);
 	    }
 
 	    if (typeof this.settings.content === 'string') {
@@ -1321,6 +1321,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
 	        element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
 	    },
+
+		/**
+		 * Removes current node from tree.
+		 * @param {Node} node
+		 */
+		removeNode: function removeNode(node) {
+			if (node.parentNode)
+				node.parentNode.removeChild(node);
+		},
+
 	    /**
 	     *
 	     * @param {string} html

@@ -22,6 +22,16 @@ module.exports = {
         var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
         element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
     },
+
+    /**
+     * Removes current node from tree.
+     * @param {Node} node
+     */
+    removeNode: function removeNode(node) {
+        if (node.parentNode)
+            node.parentNode.removeChild(node);
+    },
+
     /**
      *
      * @param {string} html
