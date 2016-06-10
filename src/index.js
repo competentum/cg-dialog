@@ -13,6 +13,7 @@ var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
 var TITLE_CLASS = DIALOG_CLASS + '-title';
 var CONTENT_CLASS = DIALOG_CLASS + '-content';
 var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
+var BUTTON_CLASS = DIALOG_CLASS + '-button';
 var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
 var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
 var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
@@ -160,8 +161,8 @@ CgDialog.prototype._render = function () {
         '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
         '        <div class="' + CONTENT_CLASS + '"></div>' +
         '        <div class="' + BUTTONS_CLASS + '">' +
-        '            <button class="' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
-        '            <button class="' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
+        '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
+        '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
         '        </div>' +
         '    </div>' +
         '</div>';

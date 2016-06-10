@@ -80,6 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TITLE_CLASS = DIALOG_CLASS + '-title';
 	var CONTENT_CLASS = DIALOG_CLASS + '-content';
 	var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
+		var BUTTON_CLASS = DIALOG_CLASS + '-button';
 	var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
 	var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
 	var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
@@ -227,8 +228,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
 	        '        <div class="' + CONTENT_CLASS + '"></div>' +
 	        '        <div class="' + BUTTONS_CLASS + '">' +
-	        '            <button class="' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
-	        '            <button class="' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
+			'            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
+			'            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
 	        '        </div>' +
 	        '    </div>' +
 	        '</div>';
@@ -338,7 +339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".is-mouse-focused:focus {\n  outline: none;\n}\n.cg-dialog-wrap {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-wrap:before {\n  content: '';\n  display: inline-block;\n  height: 100%;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 400px;\n  margin: 40px auto;\n  position: relative;\n  display: inline-block;\n  background-color: white;\n  z-index: 1001;\n  vertical-align: middle;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + __webpack_require__(5) + ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
+		exports.push([module.id, ".cg-dialog-wrap {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-wrap:before {\n  content: '';\n  display: inline-block;\n  height: 100%;\n  vertical-align: middle;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 400px;\n  margin: 40px auto;\n  position: relative;\n  display: inline-block;\n  background-color: white;\n  z-index: 1001;\n  vertical-align: middle;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + __webpack_require__(5) + ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
 
 	// exports
 
@@ -676,15 +677,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    window.mouseFocusingInitialized = true;
 
 	    if (document.readyState == "interactive") {
-	        addMouseListener();
+			addListeners();
 	    }
 	    else {
-	        document.addEventListener('DOMContentLoaded', addMouseListener);
+			document.addEventListener('DOMContentLoaded', addListeners);
 	    }
 
-	    function addMouseListener() {
+		function addListeners() {
+			var justBlured;
+			var wasMouseFocused;
 	        document.body.addEventListener('mousedown', function (e) {
 	            var el = e.target;
+				var labeledElement;
 
 	            // collect clicked element with it's parents before body-element (except svg elements)
 	            var els = [];
@@ -692,6 +696,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (!el.namespaceURI || el.namespaceURI.toLowerCase().indexOf('svg') == -1) {
 	                    els.push(el);
 	                    el.addEventListener('focus', onFocus);
+
+						// if label element is clicked, bound element can be focused
+						if (el.tagName.toLowerCase() === 'label') {
+							// save element bound to label
+							if (el.getAttribute('for')) {
+								labeledElement = document.getElementById(el.getAttribute('for'));
+							}
+							else {
+								labeledElement = el.querySelector('input');
+							}
+							if (labeledElement) {
+								labeledElement.addEventListener('focus', onFocus);
+								document.addEventListener('mouseup', onMouseUp);
+							}
+						}
 	                }
 	                el = el.parentNode;
 	            }
@@ -700,35 +719,76 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // wait for `document.activeElement` to change
 	            setTimeout(function () {
 	                // find focused element
-	                setMouseFocused(document.activeElement);
+					onFocus.apply(document.activeElement);
 	            }, 0);
+
+				function onMouseUp() {
+					document.removeEventListener('mouseup', onMouseUp);
+					if (labeledElement) {
+						// wait while labeled element will be focused
+						// then remove focus listener
+						setTimeout(function () {
+							labeledElement.removeEventListener('focus', onFocus);
+							labeledElement = undefined;
+						}, 0);
+					}
+				}
 
 	            function onFocus() {
 	                setMouseFocused(this);
+					removeFocusListeners();
 	            }
 
-	            function onBlur() {
-	                this.removeEventListener('blur', onBlur);
-	                utils.removeClass(this, MOUSE_FOCUSED_CLASS);
+				function removeFocusListeners() {
+					for (var i = 0; i < els.length; i++) {
+						el = els[i];
+						el.removeEventListener('focus', onFocus);
+					}
 	            }
+			});
 
-	            function setMouseFocused(element) {
-	                // if found and it's not body
-	                if (element && element.tagName.toLowerCase() != 'body') {
-	                    // add special class, remove it after `blur`
-	                    utils.addClass(element, MOUSE_FOCUSED_CLASS);
-	                    element.addEventListener('blur', onBlur);
+			window.addEventListener('blur', function (e) {
+				if (e.target != this)
+					return;
+
+				// save element to restore mouse-focused class when this tab will be focused again
+				if (justBlured) {
+					wasMouseFocused = justBlured;
+	            }
+			}, true);
+
+			window.addEventListener('focus', function () {
+				// restore mouse-focused
+				if (wasMouseFocused) {
+					if (document.activeElement == wasMouseFocused) {
+						setMouseFocused(wasMouseFocused);
 	                }
-	                removeListeners();
+					wasMouseFocused = undefined;
 	            }
 
-	            function removeListeners() {
-	                for (var i = 0; i < els.length; i++) {
-	                    el = els[i];
-	                    el.removeEventListener('focus', onFocus);
-	                }
-	            }
 	        });
+
+			function onBlur() {
+				// save element in case when element is blurred with current browser tab blur
+				// to restore mouse-focused class when this tab will be focused again
+				justBlured = this;
+				this.removeEventListener('blur', onBlur);
+				utils.removeClass(this, MOUSE_FOCUSED_CLASS);
+
+				// clear justBlured, if this tab was blurred, element should be saved in wasMouseFocused variable
+				setTimeout(function () {
+					justBlured = undefined;
+				}, 0);
+			}
+
+			function setMouseFocused(element) {
+				// if found and it's not body
+				if (element && element.tagName.toLowerCase() != 'body') {
+					// add special class, remove it after `blur`
+					utils.addClass(element, MOUSE_FOCUSED_CLASS);
+					element.addEventListener('blur', onBlur);
+				}
+			}
 	    }
 
 	})();
