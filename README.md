@@ -17,9 +17,9 @@
         - [close](#method_close)
 
 ## Installation
-Component can be installed with npm (works in Competentum VPN only):
+Component can be installed with npm:
 ```
-npm install --save git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git
+npm install --save cg-dialog
 ```
 
 ## Usage

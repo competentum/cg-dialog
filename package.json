@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+http://heimdallr/gitbucket/git/DVR_GPR/cg-dialog.git"
+    "url": "git+https://github.com/competentum/cg-dialog.git"
   },
   "keywords": [
     "dialog",
@@ -17,7 +17,7 @@
     "ADA"
   ],
   "author": "Alexey Pilyugin",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "cg-components-banner": "latest",
     "css-loader": "^0.23.1",
