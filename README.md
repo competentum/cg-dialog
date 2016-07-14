@@ -3,6 +3,8 @@
 > JavaScript Accessible Dialog Component by [Competentum Group](http://competentum.com/).
   Exported as a [UMD](https://github.com/umdjs/umd) module.
 
+[![NPM][npm-image]][npm-url]
+
 ## Contents
 - [Installation](#installation)
 - [Usage](#usage)
@@ -134,3 +136,7 @@ Opens dialog.
 - `emitEvent` *{boolean}* If true, dialog instance will emit CgDialog.EVENTS.OPEN event and onclose function will be called. Default = `true`
 
 Closes dialog.
+
+
+[npm-url]: https://www.npmjs.com/package/cg-dialog
+[npm-image]: https://img.shields.io/npm/v/cg-dialog.svg
