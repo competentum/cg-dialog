@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v0.0.8 - Accessible Dialog Component
+ * cg-dialog v0.0.9 - Accessible Dialog Component
  * 
  * (c) 2015-2016 Competentum Group | http://competentum.com
  * Released under the MIT license

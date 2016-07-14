@@ -1,6 +1,6 @@
 {
   "name": "cg-dialog",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Accessible Dialog Component",
   "main": "src/index.js",
   "scripts": {
