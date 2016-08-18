@@ -33,6 +33,14 @@
   -webkit-box-sizing: @val;
 }
 
+.transform(@val) {
+  -moz-transform: @val;
+  -ms-transform: @val;
+  -webkit-transform: @val;
+  -o-transform: @val;
+  transform: @val;
+}
+
 .cg-dialog-wrap {
   position: fixed;
   width: 100%;
@@ -61,7 +69,7 @@
   background-color: white;
   z-index: 1001;
   vertical-align: middle;
-  transform: translate(-50%, -50%);
+  .transform(translate(-50%, -50%));
   .user-select(text);
 
   &:focus {
