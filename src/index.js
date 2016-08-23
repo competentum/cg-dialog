@@ -9,6 +9,7 @@ var merge = require('merge');
 var utils = require('./utils');
 
 var DIALOG_CLASS = 'cg-dialog';
+var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
 var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
 var TITLE_CLASS = DIALOG_CLASS + '-title';
 var CONTENT_CLASS = DIALOG_CLASS + '-content';
@@ -156,6 +157,7 @@ CgDialog.prototype._render = function () {
     var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
     var elementHTML =
         '<div class="' + CONTAINER_CLASS + '">' +
+        '<div class="' + BEFORE_DIALOG_CLASS + '"></div>' +
         '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' +
         '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' +
         '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
@@ -206,6 +208,7 @@ CgDialog.prototype.close = function (result, emitEvent) {
 
     this.isOpen = false;
     this.wrapElement.style.display = 'none';
+    utils.removeClass(document.body, 'cg-dialog-is-open');
     if (emitEvent) {
         this.settings.onclose(result);
         this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -220,6 +223,7 @@ CgDialog.prototype.open = function (emitEvent) {
     if (typeof emitEvent === 'undefined')
         emitEvent = true;
 
+    utils.addClass(document.body, 'cg-dialog-is-open');
     this.wrapElement.style.display = '';
     this.domElement.focus();
     this.isOpen = true;

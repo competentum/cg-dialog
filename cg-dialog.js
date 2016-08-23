@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v0.0.10 - Accessible Dialog Component
+ * cg-dialog v0.0.11 - Accessible Dialog Component
  * 
  * (c) 2015-2016 Competentum Group | http://competentum.com
  * Released under the MIT license
@@ -79,6 +79,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var utils = __webpack_require__(13);
 
 	var DIALOG_CLASS = 'cg-dialog';
+		var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
 	var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
 	var TITLE_CLASS = DIALOG_CLASS + '-title';
 	var CONTENT_CLASS = DIALOG_CLASS + '-content';
@@ -226,6 +227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
 	    var elementHTML =
 	        '<div class="' + CONTAINER_CLASS + '">' +
+					'<div class="' + BEFORE_DIALOG_CLASS + '"></div>' +
 	        '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' +
 	        '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' +
 	        '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
@@ -276,6 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.isOpen = false;
 	    this.wrapElement.style.display = 'none';
+		utils.removeClass(document.body, 'cg-dialog-is-open');
 	    if (emitEvent) {
 	        this.settings.onclose(result);
 	        this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -290,6 +293,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof emitEvent === 'undefined')
 	        emitEvent = true;
 
+		utils.addClass(document.body, 'cg-dialog-is-open');
 	    this.wrapElement.style.display = '';
 	    this.domElement.focus();
 	    this.isOpen = true;
@@ -343,7 +347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// module
 		exports.push([module.id,
-									".cg-dialog-wrap {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  background-color: white;\n  z-index: 1001;\n  vertical-align: middle;\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  -webkit-transform: translate(-50%, -50%);\n  -o-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url("
+									".cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-wrap-cell {\n  width: 100%;\n  height: 100%;\n  display: table-cell;\n  vertical-align: middle;\n}\n.cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-before,\n.cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url("
 									+ __webpack_require__(5)
 									+ ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n",
 									""]);
