@@ -139,4 +139,4 @@ Closes dialog.
 
 
 [npm-url]: https://www.npmjs.com/package/cg-dialog
-[npm-image]: https://img.shields.io/npm/v/cg-dialog.svg
+[npm-image]: https://img.shields.io/npm/v/cg-dialog.svg?style=flat-square
