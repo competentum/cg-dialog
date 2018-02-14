@@ -1,7 +1,7 @@
 /*!
  * cg-dialog v0.0.11 - Accessible Dialog Component
  * 
- * (c) 2015-2016 Competentum Group | http://competentum.com
+ * (c) 2015-2018 Competentum Group | http://competentum.com
  * Released under the MIT license
  * https://opensource.org/licenses/mit-license.php
  */
@@ -59,14 +59,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(1);
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -79,12 +79,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var utils = __webpack_require__(13);
 
 	var DIALOG_CLASS = 'cg-dialog';
-		var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
+	var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
 	var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
 	var TITLE_CLASS = DIALOG_CLASS + '-title';
 	var CONTENT_CLASS = DIALOG_CLASS + '-content';
 	var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
-		var BUTTON_CLASS = DIALOG_CLASS + '-button';
+	var BUTTON_CLASS = DIALOG_CLASS + '-button';
 	var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
 	var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
 	var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
@@ -227,14 +227,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
 	    var elementHTML =
 	        '<div class="' + CONTAINER_CLASS + '">' +
-					'<div class="' + BEFORE_DIALOG_CLASS + '"></div>' +
+	        '<div class="' + BEFORE_DIALOG_CLASS + '"></div>' +
 	        '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' +
 	        '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' +
 	        '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
 	        '        <div class="' + CONTENT_CLASS + '"></div>' +
 	        '        <div class="' + BUTTONS_CLASS + '">' +
-					'            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
-					'            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
+	        '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
+	        '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
 	        '        </div>' +
 	        '    </div>' +
 	        '</div>';
@@ -250,10 +250,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
 
 	    if (this.settings.isModal) {
-				utils.removeNode(this.closeButton);
+	        utils.removeNode(this.closeButton);
 	    }
 	    if (this.settings.type == this.constructor.TYPES.OK) {
-				utils.removeNode(this.cancelButton);
+	        utils.removeNode(this.cancelButton);
 	    }
 
 	    if (typeof this.settings.content === 'string') {
@@ -278,7 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.isOpen = false;
 	    this.wrapElement.style.display = 'none';
-		utils.removeClass(document.body, 'cg-dialog-is-open');
+	    utils.removeClass(document.body, 'cg-dialog-is-open');
 	    if (emitEvent) {
 	        this.settings.onclose(result);
 	        this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -293,7 +293,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof emitEvent === 'undefined')
 	        emitEvent = true;
 
-		utils.addClass(document.body, 'cg-dialog-is-open');
+	    utils.addClass(document.body, 'cg-dialog-is-open');
 	    this.wrapElement.style.display = '';
 	    this.domElement.focus();
 	    this.isOpen = true;
@@ -311,9 +311,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = CgDialog;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
@@ -327,8 +327,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./common.less", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./common.less");
+			module.hot.accept("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./common.less", function() {
+				var newContent = require("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./common.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -337,27 +337,23 @@ return /******/ (function(modules) { // webpackBootstrap
 		module.hot.dispose(function() { update(); });
 	}
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(4)();
 	// imports
 
 
 	// module
-		exports.push([module.id,
-									".cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-wrap-cell {\n  width: 100%;\n  height: 100%;\n  display: table-cell;\n  vertical-align: middle;\n}\n.cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-before,\n.cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url("
-									+ __webpack_require__(5)
-									+ ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n",
-									""]);
+	exports.push([module.id, ".cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-wrap-cell {\n  width: 100%;\n  height: 100%;\n  display: table-cell;\n  vertical-align: middle;\n}\n.cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-before,\n.cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + __webpack_require__(5) + ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
 
 	// exports
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/*
 		MIT License http://www.opensource.org/licenses/mit-license.php
@@ -411,15 +407,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iDQogICAgICAgICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPg0KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCINCiAgICAgdmlld0JveD0iMCAwIDI0IDI0Ij4NCiAgICA8cGF0aCBkPSJNMTksNi40MUwxNy41OSw1TDEyLDEwLjU5TDYuNDEsNUw1LDYuNDFMMTAuNTksMTJMNSwxNy41OUw2LjQxLDE5TDEyLDEzLjQxTDE3LjU5LDE5TDE5LDE3LjU5TDEzLjQxLDEyTDE5LDYuNDFaIi8+DQo8L3N2Zz4="
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/*
 		MIT License http://www.opensource.org/licenses/mit-license.php
@@ -434,7 +430,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			};
 		},
 		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+			return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
 		}),
 		getHeadElement = memoize(function () {
 			return document.head || document.getElementsByTagName("head")[0];
@@ -669,9 +665,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -686,40 +682,44 @@ return /******/ (function(modules) { // webpackBootstrap
 	    window.mouseFocusingInitialized = true;
 
 	    if (document.readyState == "interactive") {
-				addListeners();
+	        addListeners();
 	    }
 	    else {
-				document.addEventListener('DOMContentLoaded', addListeners);
+	        document.addEventListener('DOMContentLoaded', addListeners);
 	    }
 
-		function addListeners() {
-			var justBlured;
-			var wasMouseFocused;
+	    function isSvgElement(element) {
+	        return element.namespaceURI && element.namespaceURI.toLowerCase().indexOf('svg') !== -1;
+	    }
+
+	    function addListeners() {
+	        var justBlured;
+	        var wasMouseFocused;
 	        document.body.addEventListener('mousedown', function (e) {
 	            var el = e.target;
-						var labeledElement;
+	            var labeledElement;
 
 	            // collect clicked element with it's parents before body-element (except svg elements)
 	            var els = [];
-	            while (el && el.tagName.toLowerCase() != 'body') {
-	                if (!el.namespaceURI || el.namespaceURI.toLowerCase().indexOf('svg') == -1) {
+	            while (el && el.tagName && el.tagName.toLowerCase() != 'body') {
+	                if (!isSvgElement(el)) {
 	                    els.push(el);
 	                    el.addEventListener('focus', onFocus);
 
-										// if label element is clicked, bound element can be focused
-										if (el.tagName.toLowerCase() === 'label') {
-											// save element bound to label
-											if (el.getAttribute('for')) {
-												labeledElement = document.getElementById(el.getAttribute('for'));
-											}
-											else {
-												labeledElement = el.querySelector('input');
-											}
-											if (labeledElement) {
-												labeledElement.addEventListener('focus', onFocus);
-												document.addEventListener('mouseup', onMouseUp);
-											}
-										}
+	                    // if label element is clicked, bound element can be focused
+	                    if (el.tagName.toLowerCase() === 'label') {
+	                        // save element bound to label
+	                        if (el.getAttribute('for')) {
+	                            labeledElement = document.getElementById(el.getAttribute('for'));
+	                        }
+	                        else {
+	                            labeledElement = el.querySelector('input');
+	                        }
+	                        if (labeledElement) {
+	                            labeledElement.addEventListener('focus', onFocus);
+	                            document.addEventListener('mouseup', onMouseUp);
+	                        }
+	                    }
 	                }
 	                el = el.parentNode;
 	            }
@@ -727,85 +727,87 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // if clicked element has already focused by keyboard
 	            // wait for `document.activeElement` to change
 	            setTimeout(function () {
+	                if (isSvgElement(document.activeElement))
+	                    return;
+
 	                // find focused element
-								onFocus.apply(document.activeElement);
+	                onFocus.apply(document.activeElement);
 	            }, 0);
 
-						function onMouseUp() {
-							document.removeEventListener('mouseup', onMouseUp);
-							if (labeledElement) {
-								// wait while labeled element will be focused
-								// then remove focus listener
-								setTimeout(function () {
-									labeledElement.removeEventListener('focus', onFocus);
-									labeledElement = undefined;
-								}, 0);
-							}
-						}
+	            function onMouseUp() {
+	                document.removeEventListener('mouseup', onMouseUp);
+	                if (labeledElement) {
+	                    // wait while labeled element will be focused
+	                    // then remove focus listener
+	                    setTimeout(function () {
+	                        labeledElement.removeEventListener('focus', onFocus);
+	                        labeledElement = undefined;
+	                    }, 0);
+	                }
+	            }
 
 	            function onFocus() {
 	                setMouseFocused(this);
-								removeFocusListeners();
+	                removeFocusListeners();
 	            }
 
-						function removeFocusListeners() {
-							for (var i = 0; i < els.length; i++) {
-								el = els[i];
-								el.removeEventListener('focus', onFocus);
-							}
-	            }
-					});
-
-			window.addEventListener('blur', function (e) {
-				if (e.target != this) {
-					return;
-				}
-
-				// save element to restore mouse-focused class when this tab will be focused again
-				if (justBlured) {
-					wasMouseFocused = justBlured;
-	            }
-			}, true);
-
-			window.addEventListener('focus', function () {
-				// restore mouse-focused
-				if (wasMouseFocused) {
-					if (document.activeElement == wasMouseFocused) {
-						setMouseFocused(wasMouseFocused);
+	            function removeFocusListeners() {
+	                for (var i = 0; i < els.length; i++) {
+	                    el = els[i];
+	                    el.removeEventListener('focus', onFocus);
 	                }
-					wasMouseFocused = undefined;
+	            }
+	        });
+
+	        window.addEventListener('blur', function (e) {
+	            if (e.target != this)
+	                return;
+
+	            // save element to restore mouse-focused class when this tab will be focused again
+	            if (justBlured) {
+	                wasMouseFocused = justBlured;
+	            }
+	        }, true);
+
+	        window.addEventListener('focus', function () {
+	            // restore mouse-focused
+	            if (wasMouseFocused) {
+	                if (document.activeElement == wasMouseFocused) {
+	                    setMouseFocused(wasMouseFocused);
+	                }
+	                wasMouseFocused = undefined;
 	            }
 
 	        });
 
-			function onBlur() {
-				// save element in case when element is blurred with current browser tab blur
-				// to restore mouse-focused class when this tab will be focused again
-				justBlured = this;
-				this.removeEventListener('blur', onBlur);
-				utils.removeClass(this, MOUSE_FOCUSED_CLASS);
+	        function onBlur() {
+	            // save element in case when element is blurred with current browser tab blur
+	            // to restore mouse-focused class when this tab will be focused again
+	            justBlured = this;
+	            this.removeEventListener('blur', onBlur);
+	            utils.removeClass(this, MOUSE_FOCUSED_CLASS);
 
-				// clear justBlured, if this tab was blurred, element should be saved in wasMouseFocused variable
-				setTimeout(function () {
-					justBlured = undefined;
-				}, 0);
-			}
+	            // clear justBlured, if this tab was blurred, element should be saved in wasMouseFocused variable
+	            setTimeout(function () {
+	                justBlured = undefined;
+	            }, 0);
+	        }
 
-			function setMouseFocused(element) {
-				// if found and it's not body
-				if (element && element.tagName.toLowerCase() != 'body') {
-					// add special class, remove it after `blur`
-					utils.addClass(element, MOUSE_FOCUSED_CLASS);
-					element.addEventListener('blur', onBlur);
-				}
-			}
+	        function setMouseFocused(element) {
+	            // if found and it's not body
+	            if (element && element.tagName.toLowerCase() != 'body') {
+	                // add special class, remove it after `blur`
+	                utils.addClass(element, MOUSE_FOCUSED_CLASS);
+	                element.addEventListener('blur', onBlur);
+	            }
+	        }
 	    }
 
 	})();
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -833,9 +835,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
 	//
@@ -896,11 +898,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      er = arguments[1];
 	      if (er instanceof Error) {
 	        throw er; // Unhandled 'error' event
-				} else {
-					// At least give some kind of context to the user
-					var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-					err.context = er;
-					throw err;
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
 	      }
 	    }
 	  }
@@ -1141,9 +1143,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	if (typeof Object.create === 'function') {
 	  // implementation from standard node.js 'util' module
@@ -1170,9 +1172,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {/*!
 	 * @name JavaScript/NodeJS Merge v1.2.0
@@ -1351,9 +1353,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	})(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module)))
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = function(module) {
 		if(!module.webpackPolyfill) {
@@ -1367,9 +1369,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1380,7 +1382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Element} element
 	     * @param {string} className
 	     */
-			addClass: function addClass(element, className) {
+	    addClass: function addClass(element, className) {
 	        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
 	        if (re.test(element.className)) return;
 	        element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
@@ -1391,20 +1393,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Element} element
 	     * @param {string} className
 	     */
-			removeClass: function removeClass(element, className) {
+	    removeClass: function removeClass(element, className) {
 	        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
 	        element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
 	    },
 
-		/**
-		 * Removes current node from tree.
-		 * @param {Node} node
-		 */
-		removeNode: function removeNode(node) {
-			if (node.parentNode) {
-				node.parentNode.removeChild(node);
-			}
-		},
+	    /**
+	     * Removes current node from tree.
+	     * @param {Node} node
+	     */
+	    removeNode: function removeNode(node) {
+	        if (node.parentNode)
+	            node.parentNode.removeChild(node);
+	    },
 
 	    /**
 	     *
@@ -1418,7 +1419,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;

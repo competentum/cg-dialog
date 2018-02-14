@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>cg-dialog examples</title>
+  <link href='http://fonts.googleapis.com/css?family=Roboto+Slab&subset=latin,cyrillic-ext,cyrillic' rel='stylesheet'
+    type='text/css'>
+  <style>
+    body {
+      color: #333333;
+      margin: 0;
+      background-color: #e3f2fd;
+      font-family: 'Roboto Slab', serif;
+      user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+    }
+
+    h1 {
+      border-bottom: solid 2px #333333;
+    }
+
+    .content button {
+      margin: 0 20px 20px 0;
+    }
+
+    .content button,
+    .cg-dialog-button {
+      font-family: 'Roboto Slab', serif;
+      cursor: pointer;
+      border-radius: 2px;
+      border: solid 1px #666666;
+      background-color: #ffffff;
+      padding: 5px 10px;
+    }
+
+    .content button:hover,
+    .cg-dialog-button:hover {
+      background-color: #eeeeee;
+    }
+
+    .content button:active,
+    .cg-dialog-button:active {
+      background-color: #dddddd;
+    }
+
+    .content button:focus,
+    .cg-dialog-button:focus {
+      outline: dotted thin #666666;
+      outline-offset: -4px;
+    }
+
+    .content {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 30px;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+    }
+  </style>
+  <script type="text/javascript" src="cg-dialog.js"></script>
+</head>
+<body>
+<div class="content">
+  <h1>cg-dialog</h1>
+
+  <button onclick="dialog.open()">SHOW OK/CANCEL MODAL DIALOG</button>
+  <button onclick="dialogForm.open()">SHOW FORM DIALOG</button>
+</div>
+
+<form id="dialog_form">
+  <p>
+    <label><input type="checkbox">Checkbox</label>
+  </p>
+  <p>
+    <label><input type="checkbox">Checkbox</label>
+  </p>
+  <p>
+    <label><input type="text">text</label>
+  </p>
+</form>
+
+
+<script>
+  var dialog = new CgDialog({
+    content: 'This is dummy copy. It is not meant to be read. ' +
+             'It has been placed here solely to demonstrate the look and feel of finished, typeset text. ' +
+             'Only for show. He who searches for meaning here will be sorely disappointed.',
+    title: 'Dialog example',
+    type: CgDialog.TYPES.OK_CANCEL,
+    onopen: function() {
+      console.log('open');
+    },
+    onclose: function(result) {
+      console.log('Close Callback with result', result);
+    }
+  });
+  dialog.on(CgDialog.EVENTS.CLOSE, function(result) {
+    console.log('Close Event with result', result);
+  });
+
+  var dialogForm = new CgDialog({
+    content: document.getElementById('dialog_form'),
+    title: 'Dialog example',
+    type: CgDialog.TYPES.OK,
+    onopen: function() {
+      console.log('open');
+    },
+    onclose: function(result) {
+      console.log('close with result', result);
+    }
+  });
+
+</script>
+</body>
+</html>

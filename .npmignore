@@ -1,3 +1,2 @@
-/examples/
 .gitignore
-webpack.config.js
+dev
