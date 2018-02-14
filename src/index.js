@@ -180,36 +180,37 @@ class CgDialog extends EventEmitter {
      */
     this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
     this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type !== this.constructor.TYPES.OK;
+
     if (!Array.isArray(this.settings.classes)) {
       this.settings.classes = [this.settings.classes];
     }
   }
 
   _render() {
-    const dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
+    const dialogClasses = `${DIALOG_CLASS} ${this.settings.classes.join(' ')}`;
     const elementHTML
-      = '<div class="' + CONTAINER_CLASS + '">'
-        + '<div class="' + BEFORE_DIALOG_CLASS + '"></div>'
-        + '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">'
-        + '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>'
-        + '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>'
-        + '        <div class="' + CONTENT_CLASS + '"></div>'
-        + '        <div class="' + BUTTONS_CLASS + '">'
-        + '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>'
-        + '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>'
-        + '        </div>'
-        + '    </div>'
-        + '</div>';
+      = `<div class="${CONTAINER_CLASS}">
+        <div class="${BEFORE_DIALOG_CLASS}"></div>
+          <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="-1">
+            <div class="${TITLE_CLASS}">${this.settings.title}</div>
+            <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
+            <div class="${CONTENT_CLASS}"></div>
+            <div class="${BUTTONS_CLASS}">
+              <button class="${BUTTON_CLASS} ${OK_BUTTON_CLASS}">${this.settings.buttonTexts.ok}</button>
+              <button class="${BUTTON_CLASS} ${CANCEL_BUTTON_CLASS}">${this.settings.buttonTexts.cancel}</button>
+            </div>
+          </div>
+        </div>`;
 
     this.wrapElement = utils.createHTML(elementHTML);
     document.body.appendChild(this.wrapElement);
 
-    this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
-    this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
-    this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
-    this.closeButton = this.domElement.querySelector('.' + CLOSE_BUTTON_CLASS);
-    this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
-    this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
+    this.domElement = this.wrapElement.querySelector(`.${DIALOG_CLASS}`);
+    this.titleElement = this.domElement.querySelector(`.${TITLE_CLASS}`);
+    this.contentElement = this.domElement.querySelector(`.${CONTENT_CLASS}`);
+    this.closeButton = this.domElement.querySelector(`.${CLOSE_BUTTON_CLASS}`);
+    this.okButton = this.domElement.querySelector(`.${OK_BUTTON_CLASS}`);
+    this.cancelButton = this.domElement.querySelector(`.${CANCEL_BUTTON_CLASS}`);
 
     if (this.settings.isModal) {
       utils.removeNode(this.closeButton);
@@ -219,7 +220,6 @@ class CgDialog extends EventEmitter {
     }
 
     if (typeof this.settings.content === 'string') {
-      this.contentElement.setAttribute('tabindex', '0');
       this.contentElement.innerHTML = this.settings.content;
     } else if (this.settings.content instanceof Element) {
       this.contentElement.appendChild(this.settings.content);
@@ -229,12 +229,13 @@ class CgDialog extends EventEmitter {
   /**
    * Close dialog.
    * @param {boolean} [result = false]
-   * @param {boolean} [emitEvent=true] - if true, dialog instance will emit CLOSE event with result argument
+   * @param {boolean} [emitEvent = true] - if true, dialog instance will emit CLOSE event with result argument
    */
   close(result = false, emitEvent = true) {
     this.isOpen = false;
     this.wrapElement.style.display = 'none';
     utils.removeClass(document.body, 'cg-dialog-is-open');
+
     if (emitEvent) {
       this.settings.onclose(result);
       this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -251,6 +252,7 @@ class CgDialog extends EventEmitter {
     this.domElement.focus();
     this.isOpen = true;
     utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
+
     if (emitEvent) {
       this.settings.onopen();
       this.emit(this.constructor.EVENTS.OPEN);

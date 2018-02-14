@@ -1,3 +1,4 @@
+@prefix: cg-tabs;
 @dialog-outline-offset: 2px;
 @close-button-size: 30px;
 @close-button-outline-padding: 3px;
@@ -33,7 +34,7 @@
   -webkit-box-sizing: @val;
 }
 
-.cg-dialog-wrap {
+.@{prefix}-wrap {
   position: fixed;
   overflow: auto;
   width: 100%;
@@ -58,21 +59,21 @@
   vertical-align: middle;
 }
 
-.cg-dialog-before {
+.@{prefix}-before {
   height: 100%;
 }
 
-.cg-dialog-before,
-.cg-dialog {
+.@{prefix}-before,
+.@{prefix} {
   display: inline-block;
   vertical-align: middle;
 }
 
-.cg-dialog-is-open {
+.@{prefix}-is-open {
   overflow: hidden;
 }
 
-.cg-dialog {
+.@{prefix} {
   padding: 20px 30px;
   text-align: left;
   max-width: 460px;
@@ -96,13 +97,13 @@
   }
 }
 
-.cg-dialog-title {
+.@{prefix}-title {
   font-weight: 400;
   font-size: 2em;
   margin-bottom: 10px;
 }
 
-.cg-dialog-button-close {
+.@{prefix}-button-close {
   position: absolute;
   top: 0;
   right: 0;
@@ -123,12 +124,12 @@
   .dotted-focus(@close-button-outline-padding)
 }
 
-.cg-dialog-content:focus {
+.@{prefix}-content:focus {
   outline: 1px dotted black;
   outline-offset: @dialog-outline-offset;
 }
 
-.cg-dialog-buttons {
+.@{prefix}-buttons {
   margin-top: 10px;
   text-align: center;
   .user-select(none);
