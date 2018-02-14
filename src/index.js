@@ -1,173 +1,205 @@
-'use strict';
+import './common.less';
+import 'mouse-focused';
 
-require('./common.less');
-require('mouse-focused');
+import EventEmitter from 'events';
+import merge from 'merge';
+import utils from 'cg-component-utils';
 
-var EventEmitter = require('events');
-var inherits = require('inherits');
-var merge = require('merge');
-var utils = require('./utils');
+const DIALOG_CLASS = 'cg-dialog';
+const BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
+const CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
+const TITLE_CLASS = DIALOG_CLASS + '-title';
+const CONTENT_CLASS = DIALOG_CLASS + '-content';
+const BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
+const BUTTON_CLASS = DIALOG_CLASS + '-button';
+const CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
+const OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
+const CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
+const FORCE_FOCUSED_CLASS = 'is-force-focused';
 
-var DIALOG_CLASS = 'cg-dialog';
-var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
-var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
-var TITLE_CLASS = DIALOG_CLASS + '-title';
-var CONTENT_CLASS = DIALOG_CLASS + '-content';
-var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
-var BUTTON_CLASS = DIALOG_CLASS + '-button';
-var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
-var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
-var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
-var FORCE_FOCUSED_CLASS = 'is-force-focused';
+const CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
-var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
-
-/**
- * Dialog's customizing settings
- * @typedef {Object} DialogSettings
- * @property {string} title - Dialog's title.
- * @property {string | Element} content - Content which will be added to dialog's DOM element.
- * @property {Function} onclose - Function which will be called when dialog closes right before CLOSE event will be emitted. Result (boolean) will be passed as function argument.
- * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
- * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
- * @property {boolean} isModal - If it is true dialog can be closed using OK or CANCEL buttons only.
- * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
- * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
- */
+const KEY_CODE = {
+  ESC: 27
+};
 
 /**
- *
- * @param {DialogSettings} settings - Dialog's settings, all undefined settings will be taken from {@link CgDialog.DEFAULT_SETTINGS}
- * @constructor
+ * Accessible Dialog Component
  */
-function CgDialog(settings) {
-    EventEmitter.call(this);
+class CgDialog extends EventEmitter {
+
+  /**
+   *
+   * Dialog's customizing settings
+   * @typedef {Object} DialogSettings
+   * @property {string} title - Dialog's title.
+   * @property {string | Element} content - Content which will be added to dialog's DOM element.
+   * @property {Function} onclose - Function which will be called when dialog closes right before CLOSE event
+   *                                will be emitted. Result (boolean) will be passed as function argument.
+   * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
+   * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
+   * @property {boolean} isModal - If it is true dialog can be closed using OK or CANCEL buttons only.
+   * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
+   * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
+   */
+  static get DEFAULT_SETTINGS() {
+    if (!this._DEFAULT_SETTINGS) {
+      this._DEFAULT_SETTINGS = {
+        title: '',
+        content: '',
+        onclose() {
+          /* No operations */
+        },
+        onopen() {
+          /* No operations */
+        },
+        type: CgDialog.TYPES.OK,
+        isModal: false,
+        classes: [],
+        buttonTexts: {
+          ok: 'Ok',
+          cancel: 'Cancel'
+        }
+      };
+    }
+
+    return this._DEFAULT_SETTINGS;
+  }
+
+  static get EVENTS() {
+    if (!this._EVENTS) {
+      this._EVENTS = {
+        OPEN: 'open',
+        CLOSE: 'close'
+      };
+    }
+
+    return this._EVENTS;
+  }
+
+  static get TYPES() {
+    if (!this._TYPES) {
+      this._TYPES = {
+        OK: 'ok',
+        OK_CANCEL: 'ok_cancel'
+      };
+    }
+
+    return this._TYPES;
+  }
+
+  /**
+   * @param {DialogSettings} settings - Dialog's settings, all undefined settings will be taken from {@link CgDialog.DEFAULT_SETTINGS}
+   * @constructor
+   */
+  constructor(settings) {
+    super();
+
     this._applySettings(settings);
+
     this._render();
     this._addListeners();
+
     this.close(false, false);
-}
-inherits(CgDialog, EventEmitter);
+  }
 
-CgDialog.TYPES = {
-    OK: 'ok',
-    OK_CANCEL: 'ok_cancel'
-};
+  _addListeners() {
+    let isMouseDownOnWrap = false;
 
-/**
- *
- * @type DialogSettings
- */
-CgDialog.DEFAULT_SETTINGS = {
-    title: '',
-    content: '',
-    onclose: function () {
-    },
-    onopen: function () {
-    },
-    type: CgDialog.TYPES.OK,
-    isModal: false,
-    classes: [],
-    buttonTexts: {
-        ok: 'Ok',
-        cancel: 'Cancel'
-    }
-};
+    /**
+     * Add description
+     */
+    const onWrapMouseUp = () => {
+      document.removeEventListener('mouseup', onWrapMouseUp);
+      document.removeEventListener('touchend', onWrapMouseUp);
+      // Wait while wrap click handler will executed
+      setTimeout(() => {
+        isMouseDownOnWrap = false;
+      }, 0);
+    };
 
-CgDialog.EVENTS = {
-    OPEN: 'open',
-    CLOSE: 'close'
-};
+    /**
+     * Add description
+     * @param {object} e - event
+     */
+    const onWrapMouseDown = (e) => {
+      if (this !== e.target) {
+        return;
+      }
+      isMouseDownOnWrap = true;
+      document.addEventListener('mouseup', onWrapMouseUp);
+      document.addEventListener('touchend', onWrapMouseUp);
+    };
 
-CgDialog.prototype._addListeners = function _addListeners() {
-    var self = this;
-    var isMouseDownOnWrap = false;
-    this.domElement.addEventListener('blur', function () {
-        utils.removeClass(self.domElement, FORCE_FOCUSED_CLASS);
+    this.domElement.addEventListener('blur', () => {
+      utils.removeClass(this.domElement, FORCE_FOCUSED_CLASS);
     });
 
-    this.okButton.addEventListener('click', function () {
-        self.close(true);
+    this.okButton.addEventListener('click', () => {
+      this.close(true);
     });
 
-    this.cancelButton.addEventListener('click', function () {
-        self.close(false);
+    this.cancelButton.addEventListener('click', () => {
+      this.close(false);
     });
 
     if (!this.settings.isModal) {
-        this.closeButton.addEventListener('click', function () {
-            self.close(true);
-        });
-        this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
-        this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
-        this.wrapElement.addEventListener('click', function (e) {
-            if (e.target == self.wrapElement && isMouseDownOnWrap) {
-                self.close(false);
-            }
-        });
-        this.domElement.addEventListener('click', function (e) {
-            e.stopPropagation();
-        });
-        document.addEventListener('keydown', function (e) {
-            // close when escape is pressed
-            if (self.isOpen && e.keyCode == 27) {
-                self.close(false);
-            }
-        });
-    }
-
-    // trapping focus when dialog is opened
-    document.addEventListener('focus', function (event) {
-        if (self.isOpen && !self.domElement.contains(event.target)) {
-            event.stopPropagation();
-            self.domElement.focus();
+      this.closeButton.addEventListener('click', () => {
+        this.close(true);
+      });
+      this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
+      this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
+      this.wrapElement.addEventListener('click', (e) => {
+        if (e.target === this.wrapElement && isMouseDownOnWrap) {
+          this.close(false);
         }
+      });
+      this.domElement.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+      document.addEventListener('keydown', (e) => {
+        // Close when escape is pressed
+        if (this.isOpen && e.keyCode === KEY_CODE.ESC) {
+          this.close(false);
+        }
+      });
+    }
+
+    // Trapping focus when dialog is opened
+    document.addEventListener('focus', (event) => {
+      if (this.isOpen && !this.domElement.contains(event.target)) {
+        event.stopPropagation();
+        this.domElement.focus();
+      }
     }, true);
+  }
 
-    function onWrapMouseDown(e) {
-        if (this != e.target)
-            return;
-        isMouseDownOnWrap = true;
-        document.addEventListener('mouseup', onWrapMouseUp);
-        document.addEventListener('touchend', onWrapMouseUp);
-    }
-
-    function onWrapMouseUp() {
-        document.removeEventListener('mouseup', onWrapMouseUp);
-        document.removeEventListener('touchend', onWrapMouseUp);
-        // wait while wrap click handler will executed
-        setTimeout(function () {
-            isMouseDownOnWrap = false;
-        }, 0)
-    }
-};
-
-CgDialog.prototype._applySettings = function (settings) {
+  _applySettings(settings) {
     /**
      * @type DialogSettings
      */
     this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
-    this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
+    this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type !== this.constructor.TYPES.OK;
     if (!Array.isArray(this.settings.classes)) {
-        this.settings.classes = [this.settings.classes];
+      this.settings.classes = [this.settings.classes];
     }
-};
+  }
 
-CgDialog.prototype._render = function () {
-    var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
-    var elementHTML =
-        '<div class="' + CONTAINER_CLASS + '">' +
-        '<div class="' + BEFORE_DIALOG_CLASS + '"></div>' +
-        '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' +
-        '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' +
-        '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' +
-        '        <div class="' + CONTENT_CLASS + '"></div>' +
-        '        <div class="' + BUTTONS_CLASS + '">' +
-        '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' +
-        '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' +
-        '        </div>' +
-        '    </div>' +
-        '</div>';
+  _render() {
+    const dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
+    const elementHTML
+      = '<div class="' + CONTAINER_CLASS + '">'
+        + '<div class="' + BEFORE_DIALOG_CLASS + '"></div>'
+        + '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">'
+        + '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>'
+        + '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>'
+        + '        <div class="' + CONTENT_CLASS + '"></div>'
+        + '        <div class="' + BUTTONS_CLASS + '">'
+        + '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>'
+        + '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>'
+        + '        </div>'
+        + '    </div>'
+        + '</div>';
 
     this.wrapElement = utils.createHTML(elementHTML);
     document.body.appendChild(this.wrapElement);
@@ -180,63 +212,50 @@ CgDialog.prototype._render = function () {
     this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
 
     if (this.settings.isModal) {
-        utils.removeNode(this.closeButton);
+      utils.removeNode(this.closeButton);
     }
-    if (this.settings.type == this.constructor.TYPES.OK) {
-        utils.removeNode(this.cancelButton);
+    if (this.settings.type === this.constructor.TYPES.OK) {
+      utils.removeNode(this.cancelButton);
     }
 
     if (typeof this.settings.content === 'string') {
-        this.contentElement.setAttribute('tabindex', '0');
-        this.contentElement.innerHTML = this.settings.content;
+      this.contentElement.setAttribute('tabindex', '0');
+      this.contentElement.innerHTML = this.settings.content;
+    } else if (this.settings.content instanceof Element) {
+      this.contentElement.appendChild(this.settings.content);
     }
-    else if (this.settings.content instanceof Element) {
-        this.contentElement.appendChild(this.settings.content);
-    }
-};
+  }
 
-/**
- * Close dialog.
- * @param {boolean} [result = false]
- * @param {boolean} [emitEvent=true] - if true, dialog instance will emit CLOSE event with result argument
- */
-CgDialog.prototype.close = function (result, emitEvent) {
-    if (typeof result === 'undefined')
-        result = false;
-    if (typeof emitEvent === 'undefined')
-        emitEvent = true;
-
+  /**
+   * Close dialog.
+   * @param {boolean} [result = false]
+   * @param {boolean} [emitEvent=true] - if true, dialog instance will emit CLOSE event with result argument
+   */
+  close(result = false, emitEvent = true) {
     this.isOpen = false;
     this.wrapElement.style.display = 'none';
     utils.removeClass(document.body, 'cg-dialog-is-open');
     if (emitEvent) {
-        this.settings.onclose(result);
-        this.emit(this.constructor.EVENTS.CLOSE, result);
+      this.settings.onclose(result);
+      this.emit(this.constructor.EVENTS.CLOSE, result);
     }
-};
+  }
 
-/**
- * Open dialog.
- * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
- */
-CgDialog.prototype.open = function (emitEvent) {
-    if (typeof emitEvent === 'undefined')
-        emitEvent = true;
-
+  /**
+   * Open dialog.
+   * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
+   */
+  open(emitEvent = true) {
     utils.addClass(document.body, 'cg-dialog-is-open');
     this.wrapElement.style.display = '';
     this.domElement.focus();
     this.isOpen = true;
     utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
     if (emitEvent) {
-        this.settings.onopen();
-        this.emit(this.constructor.EVENTS.OPEN);
+      this.settings.onopen();
+      this.emit(this.constructor.EVENTS.OPEN);
     }
-};
-
-
-if (typeof jQuery !== 'undefined') {
-    //todo: add plugin
+  }
 }
 
 module.exports = CgDialog;

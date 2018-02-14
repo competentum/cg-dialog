@@ -8,6 +8,9 @@
     "build": "webpack --config dev/webpack.config.prod.js",
     "lint": "eslint --fix src dev --ext .js"
   },
+  "pre-commit": [
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/competentum/cg-dialog.git"
