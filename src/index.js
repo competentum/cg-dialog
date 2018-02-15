@@ -15,7 +15,6 @@ const BUTTON_CLASS = DIALOG_CLASS + '-button';
 const CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
 const OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
 const CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
-const FORCE_FOCUSED_CLASS = 'is-force-focused';
 
 const CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
@@ -38,7 +37,7 @@ class CgDialog extends EventEmitter {
    *                                will be emitted. Result (boolean) will be passed as function argument.
    * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
    * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
-   * @property {boolean} isModal - If it is true dialog can be closed using OK or CANCEL buttons only.
+   * @property {boolean} modal - If it is true dialog can be closed using OK or CANCEL buttons only.
    * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
    * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
    */
@@ -54,7 +53,7 @@ class CgDialog extends EventEmitter {
           /* No operations */
         },
         type: CgDialog.TYPES.OK,
-        isModal: false,
+        modal: true,
         classes: [],
         buttonTexts: {
           ok: 'Ok',
@@ -131,10 +130,6 @@ class CgDialog extends EventEmitter {
       document.addEventListener('touchend', onWrapMouseUp);
     };
 
-    this.domElement.addEventListener('blur', () => {
-      utils.removeClass(this.domElement, FORCE_FOCUSED_CLASS);
-    });
-
     this.okButton.addEventListener('click', () => {
       this.close(true);
     });
@@ -143,7 +138,7 @@ class CgDialog extends EventEmitter {
       this.close(false);
     });
 
-    if (!this.settings.isModal) {
+    if (!this.settings.modal) {
       this.closeButton.addEventListener('click', () => {
         this.close(true);
       });
@@ -179,7 +174,9 @@ class CgDialog extends EventEmitter {
      * @type DialogSettings
      */
     this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
-    this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type !== this.constructor.TYPES.OK;
+
+    // At the moment we maintain only modal dialog
+    this.settings.modal = true;
 
     if (!Array.isArray(this.settings.classes)) {
       this.settings.classes = [this.settings.classes];
@@ -191,16 +188,16 @@ class CgDialog extends EventEmitter {
     const elementHTML
       = `<div class="${CONTAINER_CLASS}">
         <div class="${BEFORE_DIALOG_CLASS}"></div>
-          <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="-1">
-            <div class="${TITLE_CLASS}">${this.settings.title}</div>
-            <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
-            <div class="${CONTENT_CLASS}"></div>
-            <div class="${BUTTONS_CLASS}">
-              <button class="${BUTTON_CLASS} ${OK_BUTTON_CLASS}">${this.settings.buttonTexts.ok}</button>
-              <button class="${BUTTON_CLASS} ${CANCEL_BUTTON_CLASS}">${this.settings.buttonTexts.cancel}</button>
-            </div>
+        <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="-1">
+          <div class="${TITLE_CLASS}">${this.settings.title}</div>
+          <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
+          <div class="${CONTENT_CLASS}"></div>
+          <div class="${BUTTONS_CLASS}">
+            <button class="${BUTTON_CLASS} ${OK_BUTTON_CLASS}">${this.settings.buttonTexts.ok}</button>
+            <button class="${BUTTON_CLASS} ${CANCEL_BUTTON_CLASS}">${this.settings.buttonTexts.cancel}</button>
           </div>
-        </div>`;
+        </div>
+      </div>`;
 
     this.wrapElement = utils.createHTML(elementHTML);
     document.body.appendChild(this.wrapElement);
@@ -212,7 +209,7 @@ class CgDialog extends EventEmitter {
     this.okButton = this.domElement.querySelector(`.${OK_BUTTON_CLASS}`);
     this.cancelButton = this.domElement.querySelector(`.${CANCEL_BUTTON_CLASS}`);
 
-    if (this.settings.isModal) {
+    if (this.settings.modal) {
       utils.removeNode(this.closeButton);
     }
     if (this.settings.type === this.constructor.TYPES.OK) {
@@ -227,7 +224,7 @@ class CgDialog extends EventEmitter {
   }
 
   /**
-   * Close dialog.
+   * Close dialog
    * @param {boolean} [result = false]
    * @param {boolean} [emitEvent = true] - if true, dialog instance will emit CLOSE event with result argument
    */
@@ -243,15 +240,15 @@ class CgDialog extends EventEmitter {
   }
 
   /**
-   * Open dialog.
+   * Open dialog
    * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
    */
   open(emitEvent = true) {
+    this.focusedElementBeforeOpened = document.activeElement;
     utils.addClass(document.body, 'cg-dialog-is-open');
     this.wrapElement.style.display = '';
     this.domElement.focus();
     this.isOpen = true;
-    utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
 
     if (emitEvent) {
       this.settings.onopen();

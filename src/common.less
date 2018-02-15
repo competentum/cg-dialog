@@ -3,37 +3,6 @@
 @close-button-size: 30px;
 @close-button-outline-padding: 3px;
 
-.user-select(@value) {
-  -webkit-user-select: @value;
-  -moz-user-select: @value;
-  -ms-user-select: @value;
-  user-select: @value;
-}
-
-.dotted-focus(@outline-padding: 3px, @color: black) {
-  &:focus {
-    outline: none;
-
-    &:not(.is-mouse-focused):before {
-      content: "";
-      position: absolute;
-      z-index: 1000;
-      top: @outline-padding;
-      bottom: @outline-padding;
-      left: @outline-padding;
-      right: @outline-padding;
-      border: 1px dotted @color;
-    }
-  }
-}
-
-.box-sizing (@val) {
-  box-sizing: @val;
-  -ms-box-sizing: @val;
-  -moz-box-sizing: @val;
-  -webkit-box-sizing: @val;
-}
-
 .@{prefix}-wrap {
   position: fixed;
   overflow: auto;
@@ -44,12 +13,7 @@
   text-align: center;
   z-index: 9999;
   background-color: rgba(11, 11, 11, 0.8);
-  .user-select(none);
-  .box-sizing(border-box);
-
-  .is-mouse-focused:focus {
-    outline: none;
-  }
+  box-sizing: border-box;
 }
 
 .cg-wrap-cell {
@@ -80,15 +44,14 @@
   position: relative;
   background-color: white;
   z-index: 1001;
-  .box-sizing(border-box);
-  .user-select(text);
+  box-sizing: border-box;
 
   &:focus {
     outline: 1px dotted white;
     outline-offset: @dialog-outline-offset;
   }
-  &.is-mouse-focused:focus,
-  &.is-force-focused:focus {
+
+  &.is-mouse-focused:focus {
     outline: none;
   }
 
@@ -120,19 +83,11 @@
   &:active {
     opacity: 0.9;
   }
-
-  .dotted-focus(@close-button-outline-padding)
-}
-
-.@{prefix}-content:focus {
-  outline: 1px dotted black;
-  outline-offset: @dialog-outline-offset;
 }
 
 .@{prefix}-buttons {
   margin-top: 10px;
   text-align: center;
-  .user-select(none);
 
   button + button {
     margin-left: 1em;
