@@ -170,7 +170,8 @@ var CLASS = {
   CLOSE_BUTTON: DIALOG_CLASS + '-button-close',
   OK_BUTTON: DIALOG_CLASS + '-button-ok',
   CANCEL_BUTTON: DIALOG_CLASS + '-button-cancel',
-  TRAP: DIALOG_CLASS + '-trap'
+  TRAP: DIALOG_CLASS + '-trap',
+  FORCE_FOCUSED: 'is-force-focused'
 };
 
 var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
@@ -312,6 +313,10 @@ var CgDialog = function (_EventEmitter) {
 
       this.closeButton.addEventListener('click', function () {
         _this2.close(true);
+      });
+
+      this.firstFocusable.addEventListener('blur', function () {
+        _cgComponentUtils2.default.removeClass(_this2.rootElement, CLASS.FORCE_FOCUSED);
       });
 
       // Close when escape is pressed
@@ -467,6 +472,7 @@ var CgDialog = function (_EventEmitter) {
 
       // Set up class to the body element
       _cgComponentUtils2.default.addClass(document.body, CLASS.IS_OPEN);
+      _cgComponentUtils2.default.addClass(this.rootElement, CLASS.FORCE_FOCUSED);
 
       // Show the dialog element
       this.wrapElement.style.display = '';
