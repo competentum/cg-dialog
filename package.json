@@ -1,6 +1,6 @@
 {
   "name": "cg-dialog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Accessible Dialog Component",
   "main": "build/cg-dialog.min.js",
   "scripts": {
