@@ -309,4 +309,4 @@ class CgDialog extends EventEmitter {
   }
 }
 
-module.exports = CgDialog;
+export default CgDialog;

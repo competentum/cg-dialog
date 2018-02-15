@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v0.0.11 - Accessible Dialog Component
+ * cg-dialog v1.0.0 - Accessible Dialog Component
  * 
  * (c) 2015-2018 Competentum Group | http://competentum.com
  * Released under the MIT license
@@ -121,6 +121,10 @@ module.exports = __webpack_require__(2);
 
 "use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -484,7 +488,8 @@ var CgDialog = function (_EventEmitter) {
   return CgDialog;
 }(_events2.default);
 
-module.exports = CgDialog;
+exports.default = CgDialog;
+module.exports = exports['default'];
 
 /***/ }),
 /* 3 */
