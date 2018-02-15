@@ -4,22 +4,36 @@ import 'mouse-focused';
 import EventEmitter from 'events';
 import merge from 'merge';
 import utils from 'cg-component-utils';
+import uniqid from 'uniqid';
+
+const FOCUSABLE_ELEMENTS = `a[href],area[href],input:not([disabled]),
+select:not([disabled]),textarea:not([disabled]),
+button:not([disabled]),
+iframe, object, embed,
+[contenteditable], [tabindex="0"]`;
 
 const DIALOG_CLASS = 'cg-dialog';
-const BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
-const CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
-const TITLE_CLASS = DIALOG_CLASS + '-title';
-const CONTENT_CLASS = DIALOG_CLASS + '-content';
-const BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
-const BUTTON_CLASS = DIALOG_CLASS + '-button';
-const CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
-const OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
-const CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
+
+const CLASS = {
+  DIALOG: DIALOG_CLASS,
+  IS_OPEN: `${DIALOG_CLASS}-is-open`,
+  BEFORE_DIALOG: `${DIALOG_CLASS}-before`,
+  CONTAINER: `${DIALOG_CLASS}-wrap`,
+  TITLE: `${DIALOG_CLASS}-title`,
+  CONTENT: `${DIALOG_CLASS}-content`,
+  BUTTONS: `${DIALOG_CLASS}-buttons`,
+  BUTTON: `${DIALOG_CLASS}-button`,
+  CLOSE_BUTTON: `${DIALOG_CLASS}-button-close`,
+  OK_BUTTON: `${DIALOG_CLASS}-button-ok`,
+  CANCEL_BUTTON: `${DIALOG_CLASS}-button-cancel`,
+  TRAP: `${DIALOG_CLASS}-trap`,
+};
 
 const CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
 
 const KEY_CODE = {
-  ESC: 27
+  ESC: 27,
+  TAB: 9
 };
 
 /**
@@ -28,7 +42,6 @@ const KEY_CODE = {
 class CgDialog extends EventEmitter {
 
   /**
-   *
    * Dialog's customizing settings
    * @typedef {Object} DialogSettings
    * @property {string} title - Dialog's title.
@@ -65,6 +78,13 @@ class CgDialog extends EventEmitter {
     return this._DEFAULT_SETTINGS;
   }
 
+  /**
+   *
+   * @property {string} OPEN - emit when user open the dialog
+   * @property {string} CLOSE - emit when user close the dialog
+   * @return {Object} - events
+   * @constructor
+   */
   static get EVENTS() {
     if (!this._EVENTS) {
       this._EVENTS = {
@@ -76,6 +96,12 @@ class CgDialog extends EventEmitter {
     return this._EVENTS;
   }
 
+  /**
+   *
+   * @property {string} OK - type of the dialog with Ok button
+   * @property {string} OK_CANCEL - type of the dialog with Ok and Cancel button
+   * @constructor
+   */
   static get TYPES() {
     if (!this._TYPES) {
       this._TYPES = {
@@ -102,34 +128,11 @@ class CgDialog extends EventEmitter {
     this.close(false, false);
   }
 
+  /**
+   * Add event listeners
+   * @private
+   */
   _addListeners() {
-    let isMouseDownOnWrap = false;
-
-    /**
-     * Add description
-     */
-    const onWrapMouseUp = () => {
-      document.removeEventListener('mouseup', onWrapMouseUp);
-      document.removeEventListener('touchend', onWrapMouseUp);
-      // Wait while wrap click handler will executed
-      setTimeout(() => {
-        isMouseDownOnWrap = false;
-      }, 0);
-    };
-
-    /**
-     * Add description
-     * @param {object} e - event
-     */
-    const onWrapMouseDown = (e) => {
-      if (this !== e.target) {
-        return;
-      }
-      isMouseDownOnWrap = true;
-      document.addEventListener('mouseup', onWrapMouseUp);
-      document.addEventListener('touchend', onWrapMouseUp);
-    };
-
     this.okButton.addEventListener('click', () => {
       this.close(true);
     });
@@ -138,37 +141,54 @@ class CgDialog extends EventEmitter {
       this.close(false);
     });
 
-    if (!this.settings.modal) {
-      this.closeButton.addEventListener('click', () => {
-        this.close(true);
-      });
-      this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
-      this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
-      this.wrapElement.addEventListener('click', (e) => {
-        if (e.target === this.wrapElement && isMouseDownOnWrap) {
-          this.close(false);
-        }
-      });
-      this.domElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-      document.addEventListener('keydown', (e) => {
-        // Close when escape is pressed
-        if (this.isOpen && e.keyCode === KEY_CODE.ESC) {
-          this.close(false);
-        }
-      });
-    }
+    this.closeButton.addEventListener('click', () => {
+      this.close(true);
+    });
 
-    // Trapping focus when dialog is opened
-    document.addEventListener('focus', (event) => {
-      if (this.isOpen && !this.domElement.contains(event.target)) {
-        event.stopPropagation();
-        this.domElement.focus();
+    // Close when escape is pressed
+    document.addEventListener('keydown', (e) => {
+      if (e.keyCode === KEY_CODE.ESC) {
+        if (this.isOpen) {
+          this.close(false);
+        }
       }
-    }, true);
+    });
+
+    /**
+     * If the user is tabbing forward from the last focusable element,
+     * then we need to move them to the first focusable element.
+     * @param {Object} e - event
+     */
+    const handleBackwardTab = (e) => {
+      e.preventDefault();
+      this.lastFocusable.focus();
+    };
+
+    /**
+     * If the user is tabbing forward from the last focusable element,
+     * then we need to move them to the first focusable element.
+     * @param {Object} e - event
+     */
+    const handleForwardTab = (e) => {
+      e.preventDefault();
+      this.firstFocusable.focus();
+    };
+
+    const trapBeforeElement = utils.createHTML(`<div tabindex="0" class="${CLASS.TRAP}">`);
+    const trapAfterElement = utils.createHTML(`<div tabindex="0" class="${CLASS.TRAP}">`);
+
+    this.wrapElement.insertBefore(trapBeforeElement, this.rootElement);
+    this.wrapElement.appendChild(trapAfterElement);
+
+    trapBeforeElement.addEventListener('focus', handleBackwardTab);
+    trapAfterElement.addEventListener('focus', handleForwardTab);
   }
 
+  /**
+   * Merge user settings with default settings
+   * @param {DialogSettings} settings
+   * @private
+   */
   _applySettings(settings) {
     /**
      * @type DialogSettings
@@ -183,35 +203,39 @@ class CgDialog extends EventEmitter {
     }
   }
 
+  /**
+   * Create DOM elements
+   * @private
+   */
   _render() {
-    const dialogClasses = `${DIALOG_CLASS} ${this.settings.classes.join(' ')}`;
+    const titleId = uniqid();
+    const contentId = uniqid();
+
+    const dialogClasses = `${CLASS.DIALOG} ${this.settings.classes.join(' ')}`;
     const elementHTML
-      = `<div class="${CONTAINER_CLASS}">
-        <div class="${BEFORE_DIALOG_CLASS}"></div>
-        <div class="${dialogClasses.trim()}" role="dialog" aria-label="${this.settings.title}" tabindex="-1">
-          <div class="${TITLE_CLASS}">${this.settings.title}</div>
-          <button class="${CLOSE_BUTTON_CLASS}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
-          <div class="${CONTENT_CLASS}"></div>
-          <div class="${BUTTONS_CLASS}">
-            <button class="${BUTTON_CLASS} ${OK_BUTTON_CLASS}">${this.settings.buttonTexts.ok}</button>
-            <button class="${BUTTON_CLASS} ${CANCEL_BUTTON_CLASS}">${this.settings.buttonTexts.cancel}</button>
+      = `<div class="${CLASS.CONTAINER}">
+        <div class="${CLASS.BEFORE_DIALOG}"></div>
+        <div class="${dialogClasses.trim()}" role="dialog" aria-labelledby="${titleId}" aria-modal="${this.settings.modal}">
+          <div id="${titleId}" class="${CLASS.TITLE}">${this.settings.title}</div>
+          <div id="${contentId}" class="${CLASS.CONTENT}"></div>
+          <div class="${CLASS.BUTTONS}">
+            <button class="${CLASS.BUTTON} ${CLASS.OK_BUTTON}">${this.settings.buttonTexts.ok}</button>
+            <button class="${CLASS.BUTTON} ${CLASS.CANCEL_BUTTON}">${this.settings.buttonTexts.cancel}</button>
           </div>
+          <button class="${CLASS.CLOSE_BUTTON}" aria-label="${CLOSE_BUTTON_ARIA_LABEL}"></button>
         </div>
       </div>`;
 
     this.wrapElement = utils.createHTML(elementHTML);
     document.body.appendChild(this.wrapElement);
 
-    this.domElement = this.wrapElement.querySelector(`.${DIALOG_CLASS}`);
-    this.titleElement = this.domElement.querySelector(`.${TITLE_CLASS}`);
-    this.contentElement = this.domElement.querySelector(`.${CONTENT_CLASS}`);
-    this.closeButton = this.domElement.querySelector(`.${CLOSE_BUTTON_CLASS}`);
-    this.okButton = this.domElement.querySelector(`.${OK_BUTTON_CLASS}`);
-    this.cancelButton = this.domElement.querySelector(`.${CANCEL_BUTTON_CLASS}`);
+    this.rootElement = this.wrapElement.querySelector(`.${CLASS.DIALOG}`);
+    this.titleElement = this.rootElement.querySelector(`.${CLASS.TITLE}`);
+    this.contentElement = this.rootElement.querySelector(`.${CLASS.CONTENT}`);
+    this.closeButton = this.rootElement.querySelector(`.${CLASS.CLOSE_BUTTON}`);
+    this.okButton = this.rootElement.querySelector(`.${CLASS.OK_BUTTON}`);
+    this.cancelButton = this.rootElement.querySelector(`.${CLASS.CANCEL_BUTTON}`);
 
-    if (this.settings.modal) {
-      utils.removeNode(this.closeButton);
-    }
     if (this.settings.type === this.constructor.TYPES.OK) {
       utils.removeNode(this.cancelButton);
     }
@@ -221,6 +245,17 @@ class CgDialog extends EventEmitter {
     } else if (this.settings.content instanceof Element) {
       this.contentElement.appendChild(this.settings.content);
     }
+
+    this.focusableElements = this.rootElement.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+    this.firstFocusable = this.focusableElements[0];
+    this.lastFocusable = this.focusableElements[this.focusableElements.length - 1];
+
+    const focusableContent = this.contentElement.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+    if (!focusableContent.length) {
+      this.rootElement.setAttribute('aria-describedby', contentId);
+    }
   }
 
   /**
@@ -229,10 +264,19 @@ class CgDialog extends EventEmitter {
    * @param {boolean} [emitEvent = true] - if true, dialog instance will emit CLOSE event with result argument
    */
   close(result = false, emitEvent = true) {
+    // Hide the dialog element
     this.isOpen = false;
     this.wrapElement.style.display = 'none';
-    utils.removeClass(document.body, 'cg-dialog-is-open');
 
+    // Remove class from the body element
+    utils.removeClass(document.body, CLASS.IS_OPEN);
+
+    // Return focus to the focused element before opening
+    if (this.focusedBeforeOpened) {
+      this.focusedBeforeOpened.focus();
+    }
+
+    // Emit CLOSE event
     if (emitEvent) {
       this.settings.onclose(result);
       this.emit(this.constructor.EVENTS.CLOSE, result);
@@ -244,12 +288,20 @@ class CgDialog extends EventEmitter {
    * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
    */
   open(emitEvent = true) {
-    this.focusedElementBeforeOpened = document.activeElement;
-    utils.addClass(document.body, 'cg-dialog-is-open');
+    // Save the focused element before we open the dialog to return focus after closing
+    this.focusedBeforeOpened = document.activeElement;
+
+    // Set up class to the body element
+    utils.addClass(document.body, CLASS.IS_OPEN);
+
+    // Show the dialog element
     this.wrapElement.style.display = '';
-    this.domElement.focus();
     this.isOpen = true;
 
+    // Focus the first focusable element
+    this.firstFocusable.focus();
+
+    // Emit OPEN event
     if (emitEvent) {
       this.settings.onopen();
       this.emit(this.constructor.EVENTS.OPEN);

@@ -88,7 +88,6 @@ See [dialog.on](#method_on) method to know how to use events.
     - `onclose` *{Function}* Function which will be called when dialog closes right before `CLOSE` event will be emitted. Result (boolean) will be passed as function argument.
     - `onopen` *{Function}* Function which will be called when dialog opens right before `OPEN` event will be emitted.
     - `type` *{string}* Type of dialog. Can be on of the `CgDialog.TYPES`. Default = `CgDialog.TYPES.OK`.
-    - `isModal` *{boolean}* If it is true dialog can be closed using OK or CANCEL buttons only. Default `false` for `CgDialog.TYPES.OK` type and `true` for `CgDialog.TYPES.OK_CANCEL` type.
     - `classes` *{Array.\<string>}* Array of classes which will be added to dialog's DOM element. Default = `[]`.
     - `buttonTexts` *{Object}* Throw this property buttons texts can be redefined.
         - `ok` *{string}* Ok button text. Default = `'Ok'`.
@@ -98,10 +97,10 @@ See [dialog.on](#method_on) method to know how to use events.
 ### Instance properties
 
 #### DOM Elements
-- `.domElement` - Root element of the dialog instance.
+- `.rootElement` - Root element of the dialog instance.
 - `.titleElement`
 - `.contentElement` - Content container.
-- `.closeButton` - Button element in top right corner of the dialog. It is visible if `isModal` property is `false`.
+- `.closeButton` - Button element in top right corner of the dialog.
 - `.okButton` - Confirmation button element.
 - `.cancelButton` - Denial button element. It is visible in `OK_CANCEL` type of the dialog.
 

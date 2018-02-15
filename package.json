@@ -22,7 +22,7 @@
   },
   "keywords": [
     "dialog",
-    "popup",
+    "modal",
     "a11y",
     "accessibility"
   ],
@@ -58,6 +58,7 @@
     "cg-component-utils": "^1.0.0",
     "events": "^1.1.0",
     "merge": "^1.2.0",
-    "mouse-focused": "^1.0.5"
+    "mouse-focused": "^1.0.5",
+    "uniqid": "^4.1.1"
   }
 }
