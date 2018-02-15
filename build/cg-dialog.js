@@ -77,255 +77,426 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-module.exports = __webpack_require__(1);
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
 
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+module.exports = __webpack_require__(2);
 
-
-__webpack_require__(2);
-__webpack_require__(8);
-
-var EventEmitter = __webpack_require__(10);
-var inherits = __webpack_require__(11);
-var merge = __webpack_require__(12);
-var utils = __webpack_require__(14);
-
-var DIALOG_CLASS = 'cg-dialog';
-var BEFORE_DIALOG_CLASS = DIALOG_CLASS + '-before';
-var CONTAINER_CLASS = DIALOG_CLASS + '-wrap';
-var TITLE_CLASS = DIALOG_CLASS + '-title';
-var CONTENT_CLASS = DIALOG_CLASS + '-content';
-var BUTTONS_CLASS = DIALOG_CLASS + '-buttons';
-var BUTTON_CLASS = DIALOG_CLASS + '-button';
-var CLOSE_BUTTON_CLASS = DIALOG_CLASS + '-button-close';
-var OK_BUTTON_CLASS = DIALOG_CLASS + '-button-ok';
-var CANCEL_BUTTON_CLASS = DIALOG_CLASS + '-button-cancel';
-var FORCE_FOCUSED_CLASS = 'is-force-focused';
-
-var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
-
-/**
- * Dialog's customizing settings
- * @typedef {Object} DialogSettings
- * @property {string} title - Dialog's title.
- * @property {string | Element} content - Content which will be added to dialog's DOM element.
- * @property {Function} onclose - Function which will be called when dialog closes right before CLOSE event will be emitted. Result (boolean) will be passed as function argument.
- * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
- * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
- * @property {boolean} isModal - If it is true dialog can be closed using OK or CANCEL buttons only.
- * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
- * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
- */
-
-/**
- *
- * @param {DialogSettings} settings - Dialog's settings, all undefined settings will be taken from {@link CgDialog.DEFAULT_SETTINGS}
- * @constructor
- */
-function CgDialog(settings) {
-    EventEmitter.call(this);
-    this._applySettings(settings);
-    this._render();
-    this._addListeners();
-    this.close(false, false);
-}
-inherits(CgDialog, EventEmitter);
-
-CgDialog.TYPES = {
-    OK: 'ok',
-    OK_CANCEL: 'ok_cancel'
-};
-
-/**
- *
- * @type DialogSettings
- */
-CgDialog.DEFAULT_SETTINGS = {
-    title: '',
-    content: '',
-    onclose: function onclose() {},
-    onopen: function onopen() {},
-    type: CgDialog.TYPES.OK,
-    isModal: false,
-    classes: [],
-    buttonTexts: {
-        ok: 'Ok',
-        cancel: 'Cancel'
-    }
-};
-
-CgDialog.EVENTS = {
-    OPEN: 'open',
-    CLOSE: 'close'
-};
-
-CgDialog.prototype._addListeners = function _addListeners() {
-    var self = this;
-    var isMouseDownOnWrap = false;
-    this.domElement.addEventListener('blur', function () {
-        utils.removeClass(self.domElement, FORCE_FOCUSED_CLASS);
-    });
-
-    this.okButton.addEventListener('click', function () {
-        self.close(true);
-    });
-
-    this.cancelButton.addEventListener('click', function () {
-        self.close(false);
-    });
-
-    if (!this.settings.isModal) {
-        this.closeButton.addEventListener('click', function () {
-            self.close(true);
-        });
-        this.wrapElement.addEventListener('mousedown', onWrapMouseDown);
-        this.wrapElement.addEventListener('touchstart', onWrapMouseDown);
-        this.wrapElement.addEventListener('click', function (e) {
-            if (e.target == self.wrapElement && isMouseDownOnWrap) {
-                self.close(false);
-            }
-        });
-        this.domElement.addEventListener('click', function (e) {
-            e.stopPropagation();
-        });
-        document.addEventListener('keydown', function (e) {
-            // close when escape is pressed
-            if (self.isOpen && e.keyCode == 27) {
-                self.close(false);
-            }
-        });
-    }
-
-    // trapping focus when dialog is opened
-    document.addEventListener('focus', function (event) {
-        if (self.isOpen && !self.domElement.contains(event.target)) {
-            event.stopPropagation();
-            self.domElement.focus();
-        }
-    }, true);
-
-    function onWrapMouseDown(e) {
-        if (this != e.target) return;
-        isMouseDownOnWrap = true;
-        document.addEventListener('mouseup', onWrapMouseUp);
-        document.addEventListener('touchend', onWrapMouseUp);
-    }
-
-    function onWrapMouseUp() {
-        document.removeEventListener('mouseup', onWrapMouseUp);
-        document.removeEventListener('touchend', onWrapMouseUp);
-        // wait while wrap click handler will executed
-        setTimeout(function () {
-            isMouseDownOnWrap = false;
-        }, 0);
-    }
-};
-
-CgDialog.prototype._applySettings = function (settings) {
-    /**
-     * @type DialogSettings
-     */
-    this.settings = merge({}, this.constructor.DEFAULT_SETTINGS, settings);
-    this.settings.isModal = typeof settings.isModal !== 'undefined' ? settings.isModal : this.settings.type != this.constructor.TYPES.OK;
-    if (!Array.isArray(this.settings.classes)) {
-        this.settings.classes = [this.settings.classes];
-    }
-};
-
-CgDialog.prototype._render = function () {
-    var dialogClasses = DIALOG_CLASS + ' ' + this.settings.classes.join(' ');
-    var elementHTML = '<div class="' + CONTAINER_CLASS + '">' + '<div class="' + BEFORE_DIALOG_CLASS + '"></div>' + '    <div class="' + dialogClasses.trim() + '" role="dialog" aria-label="' + this.settings.title + '" tabindex="-1">' + '        <div class="' + TITLE_CLASS + '">' + this.settings.title + '</div>' + '        <button class="' + CLOSE_BUTTON_CLASS + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>' + '        <div class="' + CONTENT_CLASS + '"></div>' + '        <div class="' + BUTTONS_CLASS + '">' + '            <button class="' + BUTTON_CLASS + ' ' + OK_BUTTON_CLASS + '">' + this.settings.buttonTexts.ok + '</button>' + '            <button class="' + BUTTON_CLASS + ' ' + CANCEL_BUTTON_CLASS + '">' + this.settings.buttonTexts.cancel + '</button>' + '        </div>' + '    </div>' + '</div>';
-
-    this.wrapElement = utils.createHTML(elementHTML);
-    document.body.appendChild(this.wrapElement);
-
-    this.domElement = this.wrapElement.querySelector('.' + DIALOG_CLASS);
-    this.titleElement = this.domElement.querySelector('.' + TITLE_CLASS);
-    this.contentElement = this.domElement.querySelector('.' + CONTENT_CLASS);
-    this.closeButton = this.domElement.querySelector('.' + CLOSE_BUTTON_CLASS);
-    this.okButton = this.domElement.querySelector('.' + OK_BUTTON_CLASS);
-    this.cancelButton = this.domElement.querySelector('.' + CANCEL_BUTTON_CLASS);
-
-    if (this.settings.isModal) {
-        utils.removeNode(this.closeButton);
-    }
-    if (this.settings.type == this.constructor.TYPES.OK) {
-        utils.removeNode(this.cancelButton);
-    }
-
-    if (typeof this.settings.content === 'string') {
-        this.contentElement.setAttribute('tabindex', '0');
-        this.contentElement.innerHTML = this.settings.content;
-    } else if (this.settings.content instanceof Element) {
-        this.contentElement.appendChild(this.settings.content);
-    }
-};
-
-/**
- * Close dialog.
- * @param {boolean} [result = false]
- * @param {boolean} [emitEvent=true] - if true, dialog instance will emit CLOSE event with result argument
- */
-CgDialog.prototype.close = function (result, emitEvent) {
-    if (typeof result === 'undefined') result = false;
-    if (typeof emitEvent === 'undefined') emitEvent = true;
-
-    this.isOpen = false;
-    this.wrapElement.style.display = 'none';
-    utils.removeClass(document.body, 'cg-dialog-is-open');
-    if (emitEvent) {
-        this.settings.onclose(result);
-        this.emit(this.constructor.EVENTS.CLOSE, result);
-    }
-};
-
-/**
- * Open dialog.
- * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
- */
-CgDialog.prototype.open = function (emitEvent) {
-    if (typeof emitEvent === 'undefined') emitEvent = true;
-
-    utils.addClass(document.body, 'cg-dialog-is-open');
-    this.wrapElement.style.display = '';
-    this.domElement.focus();
-    this.isOpen = true;
-    utils.addClass(this.domElement, FORCE_FOCUSED_CLASS);
-    if (emitEvent) {
-        this.settings.onopen();
-        this.emit(this.constructor.EVENTS.OPEN);
-    }
-};
-
-if (typeof jQuery !== 'undefined') {
-    //todo: add plugin
-}
-
-module.exports = CgDialog;
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+__webpack_require__(3);
+
+__webpack_require__(9);
+
+var _events = __webpack_require__(11);
+
+var _events2 = _interopRequireDefault(_events);
+
+var _merge = __webpack_require__(12);
+
+var _merge2 = _interopRequireDefault(_merge);
+
+var _cgComponentUtils = __webpack_require__(13);
+
+var _cgComponentUtils2 = _interopRequireDefault(_cgComponentUtils);
+
+var _uniqid = __webpack_require__(15);
+
+var _uniqid2 = _interopRequireDefault(_uniqid);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var FOCUSABLE_ELEMENTS = 'a[href],area[href],input:not([disabled]),\nselect:not([disabled]),textarea:not([disabled]),\nbutton:not([disabled]),\niframe, object, embed,\n[contenteditable], [tabindex="0"]';
+
+var DIALOG_CLASS = 'cg-dialog';
+
+var CLASS = {
+  DIALOG: DIALOG_CLASS,
+  IS_OPEN: DIALOG_CLASS + '-is-open',
+  BEFORE_DIALOG: DIALOG_CLASS + '-before',
+  CONTAINER: DIALOG_CLASS + '-wrap',
+  TITLE: DIALOG_CLASS + '-title',
+  CONTENT: DIALOG_CLASS + '-content',
+  BUTTONS: DIALOG_CLASS + '-buttons',
+  BUTTON: DIALOG_CLASS + '-button',
+  CLOSE_BUTTON: DIALOG_CLASS + '-button-close',
+  OK_BUTTON: DIALOG_CLASS + '-button-ok',
+  CANCEL_BUTTON: DIALOG_CLASS + '-button-cancel',
+  TRAP: DIALOG_CLASS + '-trap'
+};
+
+var CLOSE_BUTTON_ARIA_LABEL = 'Close dialog';
+
+var KEY_CODE = {
+  ESC: 27,
+  TAB: 9
+};
+
+/**
+ * Accessible Dialog Component
+ */
+
+var CgDialog = function (_EventEmitter) {
+  _inherits(CgDialog, _EventEmitter);
+
+  _createClass(CgDialog, null, [{
+    key: 'DEFAULT_SETTINGS',
+
+
+    /**
+     * Dialog's customizing settings
+     * @typedef {Object} DialogSettings
+     * @property {string} title - Dialog's title.
+     * @property {string | Element} content - Content which will be added to dialog's DOM element.
+     * @property {Function} onclose - Function which will be called when dialog closes right before CLOSE event
+     *                                will be emitted. Result (boolean) will be passed as function argument.
+     * @property {Function} onopen - Function which will be called when dialog opens right before OPEN event will be emitted.
+     * @property {string} type - Type of dialog. Can be on of the {@link CgDialog.TYPES}
+     * @property {boolean} modal - If it is true dialog can be closed using OK or CANCEL buttons only.
+     * @property {Array.<string>} classes - Array of classes which will be added to dialog's DOM element.
+     * @property {{ok: string, cancel: string}} buttonTexts - Throw this property OK and CANCEL buttons texts can be redefined.
+     */
+    get: function get() {
+      if (!this._DEFAULT_SETTINGS) {
+        this._DEFAULT_SETTINGS = {
+          title: '',
+          content: '',
+          onclose: function onclose() {
+            /* No operations */
+          },
+          onopen: function onopen() {
+            /* No operations */
+          },
+
+          type: CgDialog.TYPES.OK,
+          modal: true,
+          classes: [],
+          buttonTexts: {
+            ok: 'Ok',
+            cancel: 'Cancel'
+          }
+        };
+      }
+
+      return this._DEFAULT_SETTINGS;
+    }
+
+    /**
+     *
+     * @property {string} OPEN - emit when user open the dialog
+     * @property {string} CLOSE - emit when user close the dialog
+     * @return {Object} - events
+     * @constructor
+     */
+
+  }, {
+    key: 'EVENTS',
+    get: function get() {
+      if (!this._EVENTS) {
+        this._EVENTS = {
+          OPEN: 'open',
+          CLOSE: 'close'
+        };
+      }
+
+      return this._EVENTS;
+    }
+
+    /**
+     *
+     * @property {string} OK - type of the dialog with Ok button
+     * @property {string} OK_CANCEL - type of the dialog with Ok and Cancel button
+     * @constructor
+     */
+
+  }, {
+    key: 'TYPES',
+    get: function get() {
+      if (!this._TYPES) {
+        this._TYPES = {
+          OK: 'ok',
+          OK_CANCEL: 'ok_cancel'
+        };
+      }
+
+      return this._TYPES;
+    }
+
+    /**
+     * @param {DialogSettings} settings - Dialog's settings, all undefined settings will be taken from {@link CgDialog.DEFAULT_SETTINGS}
+     * @constructor
+     */
+
+  }]);
+
+  function CgDialog(settings) {
+    _classCallCheck(this, CgDialog);
+
+    var _this = _possibleConstructorReturn(this, (CgDialog.__proto__ || Object.getPrototypeOf(CgDialog)).call(this));
+
+    _this._applySettings(settings);
+
+    _this._render();
+    _this._addListeners();
+
+    _this.close(false, false);
+    return _this;
+  }
+
+  /**
+   * Add event listeners
+   * @private
+   */
+
+
+  _createClass(CgDialog, [{
+    key: '_addListeners',
+    value: function _addListeners() {
+      var _this2 = this;
+
+      this.okButton.addEventListener('click', function () {
+        _this2.close(true);
+      });
+
+      this.cancelButton.addEventListener('click', function () {
+        _this2.close(false);
+      });
+
+      this.closeButton.addEventListener('click', function () {
+        _this2.close(true);
+      });
+
+      // Close when escape is pressed
+      document.addEventListener('keydown', function (e) {
+        if (e.keyCode === KEY_CODE.ESC) {
+          if (_this2.isOpen) {
+            _this2.close(false);
+          }
+        }
+      });
+
+      /**
+       * If the user is tabbing forward from the last focusable element,
+       * then we need to move them to the first focusable element.
+       * @param {Object} e - event
+       */
+      var handleBackwardTab = function handleBackwardTab(e) {
+        e.preventDefault();
+        _this2.lastFocusable.focus();
+      };
+
+      /**
+       * If the user is tabbing forward from the last focusable element,
+       * then we need to move them to the first focusable element.
+       * @param {Object} e - event
+       */
+      var handleForwardTab = function handleForwardTab(e) {
+        e.preventDefault();
+        _this2.firstFocusable.focus();
+      };
+
+      var trapBeforeElement = _cgComponentUtils2.default.createHTML('<div tabindex="0" class="' + CLASS.TRAP + '">');
+      var trapAfterElement = _cgComponentUtils2.default.createHTML('<div tabindex="0" class="' + CLASS.TRAP + '">');
+
+      this.wrapElement.insertBefore(trapBeforeElement, this.rootElement);
+      this.wrapElement.appendChild(trapAfterElement);
+
+      trapBeforeElement.addEventListener('focus', handleBackwardTab);
+      trapAfterElement.addEventListener('focus', handleForwardTab);
+    }
+
+    /**
+     * Merge user settings with default settings
+     * @param {DialogSettings} settings
+     * @private
+     */
+
+  }, {
+    key: '_applySettings',
+    value: function _applySettings(settings) {
+      /**
+       * @type DialogSettings
+       */
+      this.settings = (0, _merge2.default)({}, this.constructor.DEFAULT_SETTINGS, settings);
+
+      // At the moment we maintain only modal dialog
+      this.settings.modal = true;
+
+      if (!Array.isArray(this.settings.classes)) {
+        this.settings.classes = [this.settings.classes];
+      }
+    }
+
+    /**
+     * Create DOM elements
+     * @private
+     */
+
+  }, {
+    key: '_render',
+    value: function _render() {
+      var titleId = (0, _uniqid2.default)();
+      var contentId = (0, _uniqid2.default)();
+
+      var dialogClasses = CLASS.DIALOG + ' ' + this.settings.classes.join(' ');
+      var elementHTML = '<div class="' + CLASS.CONTAINER + '">\n        <div class="' + CLASS.BEFORE_DIALOG + '"></div>\n        <div class="' + dialogClasses.trim() + '" role="dialog" aria-labelledby="' + titleId + '" aria-modal="' + this.settings.modal + '">\n          <div id="' + titleId + '" class="' + CLASS.TITLE + '">' + this.settings.title + '</div>\n          <div id="' + contentId + '" class="' + CLASS.CONTENT + '"></div>\n          <div class="' + CLASS.BUTTONS + '">\n            <button class="' + CLASS.BUTTON + ' ' + CLASS.OK_BUTTON + '">' + this.settings.buttonTexts.ok + '</button>\n            <button class="' + CLASS.BUTTON + ' ' + CLASS.CANCEL_BUTTON + '">' + this.settings.buttonTexts.cancel + '</button>\n          </div>\n          <button class="' + CLASS.CLOSE_BUTTON + '" aria-label="' + CLOSE_BUTTON_ARIA_LABEL + '"></button>\n        </div>\n      </div>';
+
+      this.wrapElement = _cgComponentUtils2.default.createHTML(elementHTML);
+      document.body.appendChild(this.wrapElement);
+
+      this.rootElement = this.wrapElement.querySelector('.' + CLASS.DIALOG);
+      this.titleElement = this.rootElement.querySelector('.' + CLASS.TITLE);
+      this.contentElement = this.rootElement.querySelector('.' + CLASS.CONTENT);
+      this.closeButton = this.rootElement.querySelector('.' + CLASS.CLOSE_BUTTON);
+      this.okButton = this.rootElement.querySelector('.' + CLASS.OK_BUTTON);
+      this.cancelButton = this.rootElement.querySelector('.' + CLASS.CANCEL_BUTTON);
+
+      if (this.settings.type === this.constructor.TYPES.OK) {
+        _cgComponentUtils2.default.removeNode(this.cancelButton);
+      }
+
+      if (typeof this.settings.content === 'string') {
+        this.contentElement.innerHTML = this.settings.content;
+      } else if (this.settings.content instanceof Element) {
+        this.contentElement.appendChild(this.settings.content);
+      }
+
+      this.focusableElements = this.rootElement.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+      this.firstFocusable = this.focusableElements[0];
+      this.lastFocusable = this.focusableElements[this.focusableElements.length - 1];
+
+      var focusableContent = this.contentElement.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+      if (!focusableContent.length) {
+        this.rootElement.setAttribute('aria-describedby', contentId);
+      }
+    }
+
+    /**
+     * Close dialog
+     * @param {boolean} [result = false]
+     * @param {boolean} [emitEvent = true] - if true, dialog instance will emit CLOSE event with result argument
+     */
+
+  }, {
+    key: 'close',
+    value: function close() {
+      var result = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var emitEvent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      // Hide the dialog element
+      this.isOpen = false;
+      this.wrapElement.style.display = 'none';
+
+      // Remove class from the body element
+      _cgComponentUtils2.default.removeClass(document.body, CLASS.IS_OPEN);
+
+      // Return focus to the focused element before opening
+      if (this.focusedBeforeOpened) {
+        this.focusedBeforeOpened.focus();
+      }
+
+      // Emit CLOSE event
+      if (emitEvent) {
+        this.settings.onclose(result);
+        this.emit(this.constructor.EVENTS.CLOSE, result);
+      }
+    }
+
+    /**
+     * Open dialog
+     * @param {boolean} [emitEvent = true] - if true, dialog instance will emit OPEN event
+     */
+
+  }, {
+    key: 'open',
+    value: function open() {
+      var emitEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+      // Save the focused element before we open the dialog to return focus after closing
+      this.focusedBeforeOpened = document.activeElement;
+
+      // Set up class to the body element
+      _cgComponentUtils2.default.addClass(document.body, CLASS.IS_OPEN);
+
+      // Show the dialog element
+      this.wrapElement.style.display = '';
+      this.isOpen = true;
+
+      // Focus the first focusable element
+      this.firstFocusable.focus();
+
+      // Emit OPEN event
+      if (emitEvent) {
+        this.settings.onopen();
+        this.emit(this.constructor.EVENTS.OPEN);
+      }
+    }
+  }]);
+
+  return CgDialog;
+}(_events2.default);
+
+module.exports = CgDialog;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(3);
+var content = __webpack_require__(4);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(7)(content, {});
+var update = __webpack_require__(8)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -342,22 +513,22 @@ if(false) {
 }
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var escape = __webpack_require__(4);
-exports = module.exports = __webpack_require__(5)(false);
+var escape = __webpack_require__(5);
+exports = module.exports = __webpack_require__(6)(false);
 // imports
 
 
 // module
-exports.push([module.i, ".cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n}\n.cg-dialog-wrap .is-mouse-focused:focus {\n  outline: none;\n}\n.cg-wrap-cell {\n  width: 100%;\n  height: 100%;\n  display: table-cell;\n  vertical-align: middle;\n}\n.cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-before,\n.cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.cg-dialog:focus {\n  outline: 1px dotted white;\n  outline-offset: 2px;\n}\n.cg-dialog.is-mouse-focused:focus,\n.cg-dialog.is-force-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + escape(__webpack_require__(6)) + ") center no-repeat;\n}\n.cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog-button-close:focus {\n  outline: none;\n}\n.cg-dialog-button-close:focus:not(.is-mouse-focused):before {\n  content: \"\";\n  position: absolute;\n  z-index: 1000;\n  top: 3px;\n  bottom: 3px;\n  left: 3px;\n  right: 3px;\n  border: 1px dotted black;\n}\n.cg-dialog-content:focus {\n  outline: 1px dotted black;\n  outline-offset: 2px;\n}\n.cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.cg-dialog-buttons button + button {\n  margin-left: 1em;\n}\n", ""]);
+exports.push([module.i, ".cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog-wrap .cg-dialog-trap {\n  position: absolute;\n}\n.cg-dialog-wrap .cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-wrap .cg-dialog-before,\n.cg-dialog-wrap .cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog.is-mouse-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog .cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog .cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + escape(__webpack_require__(7)) + ") center no-repeat;\n}\n.cg-dialog .cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog .cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog .cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = function escape(url) {
@@ -379,7 +550,7 @@ module.exports = function escape(url) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /*
@@ -461,13 +632,13 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iDQogICAgICAgICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPg0KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCINCiAgICAgdmlld0JveD0iMCAwIDI0IDI0Ij4NCiAgICA8cGF0aCBkPSJNMTksNi40MUwxNy41OSw1TDEyLDEwLjU5TDYuNDEsNUw1LDYuNDFMMTAuNTksMTJMNSwxNy41OUw2LjQxLDE5TDEyLDEzLjQxTDE3LjU5LDE5TDE5LDE3LjU5TDEzLjQxLDEyTDE5LDYuNDFaIi8+DQo8L3N2Zz4="
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 /*
@@ -719,13 +890,13 @@ function updateLink(linkElement, obj) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(9);
+var utils = __webpack_require__(10);
 
 (function () {
     var MOUSE_FOCUSED_CLASS = 'is-mouse-focused';
@@ -860,7 +1031,7 @@ var utils = __webpack_require__(9);
 })();
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -891,7 +1062,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -1199,35 +1370,6 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
-  }
-}
-
-
-/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1406,35 +1548,95 @@ if (typeof Object.create === 'function') {
 	}
 
 })(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
+"use strict";
+
+
+__webpack_require__(14);
+
+module.exports = {
+
+  /**
+   *
+   * @param {Element} element
+   * @param {string} className
+   */
+  addClass: function addClass(element, className) {
+    var re = new RegExp('(^|\\s)' + className + '(\\s|$)', 'g');
+    if (re.test(element.className)) return;
+    element.className = (element.className + ' ' + className).replace(/\s+/g, ' ').replace(/(^ | $)/g, '');
+  },
+
+  /**
+   *
+   * @param {Element} element
+   * @param {string} className
+   * @returns {boolean}
+   */
+  hasClass: function (element, className) {
+    return element.matches('.' + className);
+  },
+
+  /**
+   *
+   * @param {Element} element
+   * @param {string} className
+   */
+  removeClass: function removeClass(element, className) {
+    var re = new RegExp('(^|\\s)' + className + '(\\s|$)', 'g');
+    element.className = element.className.replace(re, '$1').replace(/\s+/g, ' ').replace(/(^ | $)/g, '');
+  },
+
+  /**
+   * Removes current node from tree.
+   * @param {Node} node
+   */
+  removeNode: function removeNode(node) {
+    if (node.parentNode)
+      node.parentNode.removeChild(node);
+  },
+
+  /**
+   *
+   * @param {string} html
+   * @returns {Node}
+   */
+  createHTML: function createHTML(html) {
+    var div = document.createElement('div');
+    div.innerHTML = html.trim();
+    return div.firstChild;
+  },
+
+  /**
+   * Adds coordinates to event object independently of event from touching or mouse. (cx, cy - client coordinates, px, py - page coordinates)
+   * @param event
+   */
+  extendEventObject: function extendEventObject(event) {
+    if (event.touches && event.touches[0]) {
+      event.cx = event.touches[0].clientX;
+      event.cy = event.touches[0].clientY;
+      event.px = event.touches[0].pageX;
+      event.py = event.touches[0].pageY;
+    }
+    else if (event.changedTouches && event.changedTouches[0]) {
+      event.cx = event.changedTouches[0].clientX;
+      event.cy = event.changedTouches[0].clientY;
+      event.px = event.changedTouches[0].pageX;
+      event.py = event.changedTouches[0].pageY;
+    }
+    else {
+      event.cx = event.clientX;
+      event.cy = event.clientY;
+      event.px = event.pageX;
+      event.py = event.pageY;
+    }
+  }
 };
-
 
 /***/ }),
 /* 14 */
@@ -1443,48 +1645,256 @@ module.exports = function(module) {
 "use strict";
 
 
-module.exports = {
+if (!Element.prototype.matches) {
+  Element.prototype.matches =
+    Element.prototype.matchesSelector ||
+    Element.prototype.mozMatchesSelector ||
+    Element.prototype.msMatchesSelector ||
+    Element.prototype.oMatchesSelector ||
+    Element.prototype.webkitMatchesSelector ||
+    function (s) {
+      var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+          i       = matches.length;
+      while (--i >= 0 && matches.item(i) !== this) {
+        // empty
+      }
+      return i > -1;
+    };
+}
 
-    /**
-     *
-     * @param {Element} element
-     * @param {string} className
-     */
-    addClass: function addClass(element, className) {
-        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
-        if (re.test(element.className)) return;
-        element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
-    },
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
 
-    /**
-     *
-     * @param {Element} element
-     * @param {string} className
-     */
-    removeClass: function removeClass(element, className) {
-        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
-        element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
-    },
+/* WEBPACK VAR INJECTION */(function(process, module) {/* 
+(The MIT License)
+Copyright (c) 2014 Halász Ádám <mail@adamhalasz.com>
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
-    /**
-     * Removes current node from tree.
-     * @param {Node} node
-     */
-    removeNode: function removeNode(node) {
-        if (node.parentNode) node.parentNode.removeChild(node);
-    },
+//  Unique Hexatridecimal ID Generator
+// ================================================
 
-    /**
-     *
-     * @param {string} html
-     * @returns {Node}
-     */
-    createHTML: function createHTML(html) {
-        var div = document.createElement('div');
-        div.innerHTML = html.trim();
-        return div.firstChild;
+//  Dependencies
+// ================================================
+var pid = process && process.pid ? process.pid.toString(36) : '' ;
+var mac =  false ? require('macaddress').one(macHandler) : null ;
+var address = mac ? parseInt(mac.replace(/\:|\D+/gi, '')).toString(36) : '' ;
+
+//  Exports
+// ================================================
+module.exports         = function(prefix){ return (prefix || '') + address + pid + now().toString(36); }
+module.exports.process = function(prefix){ return (prefix || '')           + pid + now().toString(36); }
+module.exports.time    = function(prefix){ return (prefix || '')                 + now().toString(36); }
+
+//  Helpers
+// ================================================
+function now(){
+    var time = Date.now();
+    var last = now.last || time;
+    return now.last = time > last ? time : last + 1;
+}
+
+function macHandler(error){
+    if(module.parent && module.parent.uniqid_debug){
+        if(error) console.error('Info: No mac address - uniqid() falls back to uniqid.process().', error)
+        if(pid == '') console.error('Info: No process.pid - uniqid.process() falls back to uniqid.time().')
+    }
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(0)(module)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
     }
 };
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
 
 /***/ })
 /******/ ]);
