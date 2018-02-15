@@ -1,5 +1,5 @@
 /*!
- * cg-dialog v1.0.0 - Accessible Dialog Component
+ * cg-dialog v1.0.2 - Accessible Dialog Component
  * 
  * (c) 2015-2018 Competentum Group | http://competentum.com
  * Released under the MIT license
@@ -130,21 +130,19 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 __webpack_require__(3);
 
-__webpack_require__(9);
-
-var _events = __webpack_require__(11);
+var _events = __webpack_require__(9);
 
 var _events2 = _interopRequireDefault(_events);
 
-var _merge = __webpack_require__(12);
+var _merge = __webpack_require__(10);
 
 var _merge2 = _interopRequireDefault(_merge);
 
-var _cgComponentUtils = __webpack_require__(13);
+var _cgComponentUtils = __webpack_require__(11);
 
 var _cgComponentUtils2 = _interopRequireDefault(_cgComponentUtils);
 
-var _uniqid = __webpack_require__(15);
+var _uniqid = __webpack_require__(13);
 
 var _uniqid2 = _interopRequireDefault(_uniqid);
 
@@ -527,7 +525,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, ".cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog-wrap .cg-dialog-trap {\n  position: absolute;\n}\n.cg-dialog-wrap .cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-wrap .cg-dialog-before,\n.cg-dialog-wrap .cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog.is-mouse-focused:focus {\n  outline: none;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog .cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog .cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + escape(__webpack_require__(7)) + ") center no-repeat;\n}\n.cg-dialog .cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog .cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog .cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n}\n", ""]);
+exports.push([module.i, ".cg-dialog-is-open {\n  overflow: hidden;\n}\n.cg-dialog-wrap {\n  position: fixed;\n  overflow: auto;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  top: 0;\n  text-align: center;\n  z-index: 9999;\n  background-color: rgba(11, 11, 11, 0.8);\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog-wrap .cg-dialog-trap {\n  position: absolute;\n}\n.cg-dialog-wrap .cg-dialog-before {\n  height: 100%;\n}\n.cg-dialog-wrap .cg-dialog-before,\n.cg-dialog-wrap .cg-dialog {\n  display: inline-block;\n  vertical-align: middle;\n}\n.cg-dialog {\n  padding: 20px 30px;\n  text-align: left;\n  max-width: 460px;\n  position: relative;\n  background-color: white;\n  z-index: 1001;\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n}\n.cg-dialog button {\n  cursor: pointer;\n}\n.cg-dialog .cg-dialog-title {\n  font-weight: 400;\n  font-size: 2em;\n  margin-bottom: 10px;\n}\n.cg-dialog .cg-dialog-button-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 30px;\n  height: 30px;\n  border: none;\n  opacity: .5;\n  background: url(" + escape(__webpack_require__(7)) + ") center no-repeat;\n}\n.cg-dialog .cg-dialog-button-close:hover {\n  opacity: 0.7;\n}\n.cg-dialog .cg-dialog-button-close:active {\n  opacity: 0.9;\n}\n.cg-dialog .cg-dialog-buttons {\n  margin-top: 10px;\n  text-align: center;\n}\n", ""]);
 
 // exports
 
@@ -896,178 +894,6 @@ function updateLink(linkElement, obj) {
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(10);
-
-(function () {
-    var MOUSE_FOCUSED_CLASS = 'is-mouse-focused';
-
-    if (window.mouseFocusingInitialized)
-        return;
-
-    window.mouseFocusingInitialized = true;
-
-    if (document.readyState == "interactive") {
-        addListeners();
-    }
-    else {
-        document.addEventListener('DOMContentLoaded', addListeners);
-    }
-
-    function isSvgElement(element) {
-        return element.namespaceURI && element.namespaceURI.toLowerCase().indexOf('svg') !== -1;
-    }
-
-    function addListeners() {
-        var justBlured;
-        var wasMouseFocused;
-        document.body.addEventListener('mousedown', function (e) {
-            var el = e.target;
-            var labeledElement;
-
-            // collect clicked element with it's parents before body-element (except svg elements)
-            var els = [];
-            while (el && el.tagName && el.tagName.toLowerCase() != 'body') {
-                if (!isSvgElement(el)) {
-                    els.push(el);
-                    el.addEventListener('focus', onFocus);
-
-                    // if label element is clicked, bound element can be focused
-                    if (el.tagName.toLowerCase() === 'label') {
-                        // save element bound to label
-                        if (el.getAttribute('for')) {
-                            labeledElement = document.getElementById(el.getAttribute('for'));
-                        }
-                        else {
-                            labeledElement = el.querySelector('input');
-                        }
-                        if (labeledElement) {
-                            labeledElement.addEventListener('focus', onFocus);
-                            document.addEventListener('mouseup', onMouseUp);
-                        }
-                    }
-                }
-                el = el.parentNode;
-            }
-
-            // if clicked element has already focused by keyboard
-            // wait for `document.activeElement` to change
-            setTimeout(function () {
-                if (isSvgElement(document.activeElement))
-                    return;
-
-                // find focused element
-                onFocus.apply(document.activeElement);
-            }, 0);
-
-            function onMouseUp() {
-                document.removeEventListener('mouseup', onMouseUp);
-                if (labeledElement) {
-                    // wait while labeled element will be focused
-                    // then remove focus listener
-                    setTimeout(function () {
-                        labeledElement.removeEventListener('focus', onFocus);
-                        labeledElement = undefined;
-                    }, 0);
-                }
-            }
-
-            function onFocus() {
-                setMouseFocused(this);
-                removeFocusListeners();
-            }
-
-            function removeFocusListeners() {
-                for (var i = 0; i < els.length; i++) {
-                    el = els[i];
-                    el.removeEventListener('focus', onFocus);
-                }
-            }
-        });
-
-        window.addEventListener('blur', function (e) {
-            if (e.target != this)
-                return;
-
-            // save element to restore mouse-focused class when this tab will be focused again
-            if (justBlured) {
-                wasMouseFocused = justBlured;
-            }
-        }, true);
-
-        window.addEventListener('focus', function () {
-            // restore mouse-focused
-            if (wasMouseFocused) {
-                if (document.activeElement == wasMouseFocused) {
-                    setMouseFocused(wasMouseFocused);
-                }
-                wasMouseFocused = undefined;
-            }
-
-        });
-
-        function onBlur() {
-            // save element in case when element is blurred with current browser tab blur
-            // to restore mouse-focused class when this tab will be focused again
-            justBlured = this;
-            this.removeEventListener('blur', onBlur);
-            utils.removeClass(this, MOUSE_FOCUSED_CLASS);
-
-            // clear justBlured, if this tab was blurred, element should be saved in wasMouseFocused variable
-            setTimeout(function () {
-                justBlured = undefined;
-            }, 0);
-        }
-
-        function setMouseFocused(element) {
-            // if found and it's not body
-            if (element && element.tagName.toLowerCase() != 'body') {
-                // add special class, remove it after `blur`
-                utils.addClass(element, MOUSE_FOCUSED_CLASS);
-                element.addEventListener('blur', onBlur);
-            }
-        }
-    }
-
-})();
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-
-    /**
-     *
-     * @param {Element} element
-     * @param {string} className
-     */
-    addClass: function addClass(element, className) {
-        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
-        if (re.test(element.className)) return;
-        element.className = (element.className + " " + className).replace(/\s+/g, " ").replace(/(^ | $)/g, "");
-    },
-
-    /**
-     *
-     * @param {Element} element
-     * @param {string} className
-     */
-    removeClass: function removeClass(element, className) {
-        var re = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
-        element.className = element.className.replace(re, "$1").replace(/\s+/g, " ").replace(/(^ | $)/g, "");
-    }
-};
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -1375,7 +1201,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 12 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*!
@@ -1556,13 +1382,13 @@ function isUndefined(arg) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 13 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(14);
+__webpack_require__(12);
 
 module.exports = {
 
@@ -1644,7 +1470,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 14 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1668,7 +1494,7 @@ if (!Element.prototype.matches) {
 }
 
 /***/ }),
-/* 15 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, module) {/* 
@@ -1709,10 +1535,10 @@ function macHandler(error){
     }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14), __webpack_require__(0)(module)))
 
 /***/ }),
-/* 16 */
+/* 14 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
