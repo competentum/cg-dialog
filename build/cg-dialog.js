@@ -1,7 +1,7 @@
 /*!
- * cg-dialog v1.0.2 - Accessible Dialog Component
+ * cg-dialog v1.0.3 - Accessible Dialog Component
  * 
- * (c) 2015-2018 Competentum Group | http://competentum.com
+ * (c) 2015-2019 Competentum Group | http://competentum.com
  * Released under the MIT license
  * https://opensource.org/licenses/mit-license.php
  */
