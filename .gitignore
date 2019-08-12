@@ -11,8 +11,5 @@ npm-debug.log*
 node_modules
 bower_components
 
-# Build files
-build
-
 # Authentication file for ftp
 dev/ftp.auth.json
